@@ -30,7 +30,7 @@ not control the routing of an entity outside the cluster.
 Destination based routing, however, has 2 advantages:
 
 * It provides separation of concerns: any client, including ingresses and gateways, will route correctly without the need to take into account customizing the ingresses.
-* It permits in-app routing, which can be useful for API gateways and message queues.
+* It simplifies in-app routing a great deal, which can be useful for message queues.
 
 The Signadot Operator can plug into service meshes which route at the origin of
 requests, but it also supplies a DevMesh which implements destination based
