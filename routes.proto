@@ -110,9 +110,8 @@ message BaselineWorkload {
 // WorkloadPortRule provides a mapping from a port on the workload to a set of
 // destinations.  The workload port is the same as the target port of a
 // kubernetes service matching the workload.  Each destination in the response
-// corresponds to a service which matches the baseline workload, but resolves
-// to the same sandboxed destination workload.  As a result, any of the
-// responses can be used.
+// corresponds to a sandbox service matching the sandboxed workload.  As 
+// a result, any of the destinations can be used.
 message WorkloadPortRule {
   uint32 workload_port = 1;
   repeated Location destinations = 2;
