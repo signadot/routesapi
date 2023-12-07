@@ -1,4 +1,4 @@
-// package watched provides read access to routes backed by a retrying client
+// package watched provides read access to workload routes backed by a retrying client
 //
 // The retry methodology we use is to
 //
