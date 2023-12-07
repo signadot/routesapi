@@ -1,4 +1,4 @@
-package router
+package workload
 
 import "github.com/signadot/routesapi/watched"
 

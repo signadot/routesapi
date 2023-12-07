@@ -1,4 +1,4 @@
-package router
+package workload
 
 import (
 	"log/slog"
