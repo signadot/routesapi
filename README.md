@@ -23,6 +23,9 @@ This repository hosts
 - Libraries for destination workload routing.
 - A command for querying the route server.
 - Documentation
+  * [Sandbox Routing](docs/sandbox-routing.md)
+  * [Workload Rules](docs/workload-rules.md)
+  * [Message queues](docs/message-queues.md)
 
 
 
