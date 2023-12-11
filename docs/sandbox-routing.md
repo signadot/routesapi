@@ -13,7 +13,7 @@ requests associated with sandboxes can be sent to any service in the cluster.
 The purpose of the Routes API is to provide access to the routing rules which
 coordinate requests for sandboxes in a cluster.  As sandboxes are intended for
 testing and development, they change frequently and so such routing rules are
-typically much more dynamic and volatile than baseline routing configuraion.
+typically much more dynamic and volatile than baseline routing configuration.
 
 ## Origin and Destination Routing
 
