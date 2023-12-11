@@ -25,6 +25,7 @@ This repository hosts
 - Documentation
   * [Sandbox Routing](docs/sandbox-routing.md)
   * [Workload Rules](docs/workload-rules.md)
+  * [Sidecar Routing](docs/sidecar-routing.md)
   * [Message queues](docs/message-queues.md)
 
 
