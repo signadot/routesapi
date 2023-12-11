@@ -49,7 +49,6 @@ following environment variables
 | SIGNADOT_BASELINE_NAMESPACE | the namespace of the baseline workload      |
 | SIGNADOT_BASELINE_NAME      | the name of the baseline workload           |
 | SIGNADOT_ROUTESERVER        | the TCP address of the signadot routeserver |
-| ----                        | ----                                        |
 
 The Go Routes API SDK provides a simple function to get access to the routing
 rules for a baseline workload from the environment:

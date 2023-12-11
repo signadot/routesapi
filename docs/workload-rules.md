@@ -36,7 +36,10 @@ Given a request `req` with routing key `req.routing-key` arriving on port `req.p
 `req.baseline`, a workload rule states
 
 ```
-If `req.baseline` == `rule.baseline` and `req.routing-key` == `rule.routing-key` and TCP addresses `addrs` is in `rule.portMap[req.port]` then route to any one address `addrs`, otherwise pass the request to the baseline.
+If `req.baseline` == `rule.baseline` and 
+    `req.routing-key` == `rule.routing-key` and 
+    some TCP addresses `addrs` are in `rule.portMap[req.port]` 
+then route to any one address `addrs`, otherwise pass the request to the baseline.
 ```
 
 
