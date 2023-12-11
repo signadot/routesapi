@@ -22,10 +22,11 @@ Doing so allows customizing requests based on DNS and customizing requests to
 entities outside the cluster.  But it also has the drawback of requiring
 instrumentation of ingresses and gateways, which can be problematic.
 
-An alternative is to process routing rules at the _destination_ of a request,
+An alternative [^1] is to process routing rules at the _destination_ of a request,
 which has the the disadvantage of not working with DNS or entities outside a
 cluster, as one can not know by what host or service a request was sent or may
 not control the routing of an entity outside the cluster.
+
 
 Destination based routing, however, has 2 advantages:
 
@@ -45,3 +46,8 @@ at the destination of a request.
 Future versions may provide routing rules for routing at the origin of requests.
 
 
+## Notes
+
+[^1] Of course, ideally, one would expect routing to occur neither at the source
+nor at the destination but rather simply in-flight.  This option does not
+exist on Kubernetes.

@@ -3,7 +3,7 @@
 ## Overview
 
 The Signadot Routes API provides access to routing rules pertinent to Signadot
-Sandboxes on a cluster with the Signadot Operator (>= v0.15.0) installed.
+Sandboxes on a cluster with the Signadot Operator (>= v0.14.2) installed.
 Effective use of the Routes API requires an understanding of [Sandbox
 Routing](docs/sandbox-routing.md).
 
