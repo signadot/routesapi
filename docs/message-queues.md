@@ -54,7 +54,7 @@ The Go Routes API SDK provides a simple function to get access to the routing
 rules for a baseline workload from the environment:
 
 ```go
-import "github.com/signadot/routesapi/watched"
+import "github.com/signadot/routesapi/go-routesapi/watched"
 routing, err := watched.BaselineFromEnv()
 ```
 
@@ -62,7 +62,7 @@ routing, err := watched.BaselineFromEnv()
 
 In the baseline:
 ```go
-import "github.com/signadot/routesapi/watched"
+import "github.com/signadot/routesapi/go-routesapi/watched"
 
 func ShouldProcess(routing watched.BaselineWatched, routingKey string) bool {
     return routing.Get(routingKey) == nil
@@ -72,7 +72,7 @@ func ShouldProcess(routing watched.BaselineWatched, routingKey string) bool {
 In a sandboxed workload:
 
 ```go
-import "github.com/signadot/routesapi/watched"
+import "github.com/signadot/routesapi/go-routesapi/watched"
 
 func ShouldProcess(routing watched.BaselineWatched, routingKey string) bool {
     return routing.RoutesTo(routingKey, os.Getenv("SIGNADOT_SANDBOX_ROUTING_KEY"))
