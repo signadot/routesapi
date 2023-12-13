@@ -3,7 +3,7 @@ package watched
 import (
 	"context"
 
-	"github.com/signadot/routesapi"
+	"github.com/signadot/routesapi/go-routesapi"
 	"google.golang.org/protobuf/proto"
 )
 

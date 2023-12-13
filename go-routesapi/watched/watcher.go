@@ -4,9 +4,9 @@ import (
 	"context"
 	"time"
 
-	"github.com/signadot/routesapi"
-	"github.com/signadot/routesapi/internal/queue"
-	"github.com/signadot/routesapi/internal/retrypolicy"
+	"github.com/signadot/routesapi/go-routesapi"
+	"github.com/signadot/routesapi/go-routesapi/internal/queue"
+	"github.com/signadot/routesapi/go-routesapi/internal/retrypolicy"
 	"google.golang.org/grpc"
 )
 

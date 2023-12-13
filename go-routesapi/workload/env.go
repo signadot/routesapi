@@ -1,6 +1,6 @@
 package workload
 
-import "github.com/signadot/routesapi/watched"
+import "github.com/signadot/routesapi/go-routesapi/watched"
 
 func RouteserverAddr() string {
 	return watched.GetRouteServerAddr()

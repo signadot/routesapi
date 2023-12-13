@@ -1,6 +1,6 @@
 package watched
 
-import "github.com/signadot/routesapi"
+import "github.com/signadot/routesapi/go-routesapi"
 
 // key represents a way to identify a [routes.WorkloadRule].
 type key struct {

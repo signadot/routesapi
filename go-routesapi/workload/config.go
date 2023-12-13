@@ -4,7 +4,7 @@ import (
 	"log/slog"
 	"os"
 
-	"github.com/signadot/routesapi/watched"
+	"github.com/signadot/routesapi/go-routesapi/watched"
 )
 
 type Config struct {

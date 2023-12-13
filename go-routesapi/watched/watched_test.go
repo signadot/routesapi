@@ -7,7 +7,7 @@ import (
 
 	"log/slog"
 
-	"github.com/signadot/routesapi"
+	"github.com/signadot/routesapi/go-routesapi"
 )
 
 func TestWatched(t *testing.T) {

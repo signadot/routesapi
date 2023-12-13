@@ -4,8 +4,8 @@ import (
 	"context"
 	"fmt"
 
-	"github.com/signadot/routesapi"
-	"github.com/signadot/routesapi/watched"
+	"github.com/signadot/routesapi/go-routesapi"
+	"github.com/signadot/routesapi/go-routesapi/watched"
 )
 
 type Router interface {

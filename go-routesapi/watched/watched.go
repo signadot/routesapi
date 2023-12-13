@@ -4,9 +4,9 @@ import (
 	"context"
 	"sync"
 
-	"github.com/signadot/routesapi"
-	"github.com/signadot/routesapi/internal/indices"
-	"github.com/signadot/routesapi/internal/queue"
+	"github.com/signadot/routesapi/go-routesapi"
+	"github.com/signadot/routesapi/go-routesapi/internal/indices"
+	"github.com/signadot/routesapi/go-routesapi/internal/queue"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/proto"
 )

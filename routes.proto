@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/signadot/routesapi";
+option go_package = "github.com/signadot/routesapi/routesapi-go;routesapi";
 
 package routes;
 
@@ -15,10 +15,6 @@ service Routes {
   // in near real time with in-cluster Sandboxes and RouteGroups.
   rpc WatchWorkloadRoutes(WorkloadRoutesRequest) returns (stream WorkloadRuleOp) {}
 }
-
-
-
-
 
 // WorkloadRoutesRequest is a request for a set of WorkloadRules,
 // which give information about how to route requests when they are intercepted
@@ -48,7 +44,6 @@ message GetRoutesResponse {
 
 // WatchRoutes
 // ----------------------------------------------------------------------------
-
 enum WatchOp {
   ADD = 0;
   REMOVE = 1;
@@ -123,8 +118,4 @@ message Location {
   string host = 1;
   uint32 port = 2;
 }
-
-
-
-
 

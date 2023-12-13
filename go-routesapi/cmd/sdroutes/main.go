@@ -7,7 +7,7 @@ import (
 	"log"
 	"time"
 
-	"github.com/signadot/routesapi"
+	"github.com/signadot/routesapi/go-routesapi"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/encoding/protojson"
 )
