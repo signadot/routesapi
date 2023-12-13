@@ -39,7 +39,10 @@ Given a request `req` with routing key `req.routing-key` arriving on port `req.p
 If `req.baseline` == `rule.baseline` and 
     `req.routing-key` == `rule.routing-key` and 
     some TCP addresses `addrs` are in `rule.portMap[req.port]` 
-then route to any one address `addrs`, otherwise pass the request to the baseline.
+then 
+    route to any one address `addrs`
+otherwise 
+    pass the request to the baseline.
 ```
 
 
@@ -48,8 +51,12 @@ then route to any one address `addrs`, otherwise pass the request to the baselin
 In short, one can route to any one destination address in a WorkloadRule.  Here, we detail 
 how the destination addresses are defined.
 
-For every workload port `workloadPort` and every destination address `host:port` in `rule.portMap[workloadPort]` , there exists a baseline Kubernetes Service 
-whose selector selects `rule.baseline` which contains a ServicePort whose port equals `port` and whose targetPort equals `workloadPort`.  Moreover, `host` corresponds to the sandbox version of the baseline Kubernetes service.
+For every workload port `workloadPort` and every destination address
+`host:port` in `rule.portMap[workloadPort]` , there exists a baseline
+Kubernetes Service whose selector selects `rule.baseline` which contains a
+ServicePort whose port equals `port` and whose targetPort equals
+`workloadPort`.  Moreover, `host` corresponds to the sandbox version of the
+baseline Kubernetes service.
 
 
 For example, given the following manifests
@@ -131,6 +138,14 @@ A workload rule may look as follows
   ]
 }
 ```
+
+### Empty Destinations
+
+A WorkloadRule may have an empty set of PortRules.  This occurs when there is no service
+associated with the baseline workload.   Since there is no service, it does not participate
+in sandbox routing.
+
+### RouteGroups
 
 One may also have a workload rule in which the sandbox ID is not the same as the routing key.
 This occurs when the routing key comes from a RouteGroup which selects the sandbox identified
