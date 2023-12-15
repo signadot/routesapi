@@ -1,4 +1,4 @@
-module github.com/signadot/routesapi/examples/go-mq
+module github.com/signadot/routesapi/examples/go-mq-basic
 
 go 1.21.3
 
