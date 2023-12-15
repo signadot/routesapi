@@ -1,8 +1,8 @@
-module github.com/signadot/routesapi/go-routesmq
+module github.com/signadot/routesapi/examples/go-mq
 
 go 1.21.3
 
-replace github.com/signadot/routesapi/go-routesapi => ../go-routesapi
+replace github.com/signadot/routesapi/go-routesapi => ../../go-routesapi
 
 require (
 	github.com/signadot/routesapi/go-routesapi v0.0.0-00010101000000-000000000000

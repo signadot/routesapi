@@ -1,4 +1,4 @@
-package watchrouter
+package mqreactiverouter
 
 import (
 	"context"

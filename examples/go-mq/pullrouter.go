@@ -1,4 +1,4 @@
-package pullrouter
+package mqrouter
 
 import (
 	"context"
