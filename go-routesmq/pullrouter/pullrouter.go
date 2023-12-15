@@ -1,7 +1,8 @@
-package routesmq
+package pullrouter
 
 import (
 	"context"
+	"log/slog"
 	"sync"
 	"time"
 
@@ -10,19 +11,26 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
+// Config provides the information to create a MQRouter
+type Config struct {
+	RouteServerAddr string // address of the routeserver
+	PullInterval    time.Duration
+	Log             *slog.Logger
+}
+
 type pullMQRouter struct {
 	*Config
 	sandboxID  string
 	baseline   *routesapi.BaselineWorkload
 	grpcClient routesapi.RoutesClient
+	init       chan struct{}
 	mu         sync.RWMutex
 	routingMap map[string]string // this is a map from routing key to sandbox ID
-	init, done chan struct{}
 }
 
-func NewPullMQRouter(ctx context.Context, cfg *Config, b *routesapi.BaselineWorkload, sbID string) (MQRouter, error) {
+func NewPullMQRouter(ctx context.Context, cfg *Config, b *routesapi.BaselineWorkload, sbID string) (*pullMQRouter, error) {
 	// connect the route server
-	conn, err := grpc.Dial(cfg.Addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(cfg.RouteServerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}
@@ -35,7 +43,6 @@ func NewPullMQRouter(ctx context.Context, cfg *Config, b *routesapi.BaselineWork
 		baseline:   b,
 		grpcClient: grpcClient,
 		init:       make(chan struct{}),
-		done:       make(chan struct{}),
 	}
 	// run the mq router
 	go mq.run(ctx)
@@ -43,15 +50,13 @@ func NewPullMQRouter(ctx context.Context, cfg *Config, b *routesapi.BaselineWork
 }
 
 func (mq *pullMQRouter) run(ctx context.Context) {
-	reloadTicker := time.NewTicker(15 * time.Second)
+	reloadTicker := time.NewTicker(mq.PullInterval)
 	defer reloadTicker.Stop()
 	for {
 		mq.reload(ctx)
 		select {
 		case <-ctx.Done():
 			mq.Log.Info("context cancelled, closing")
-			return
-		case <-mq.done:
 			return
 		case <-reloadTicker.C:
 		}
@@ -60,6 +65,7 @@ func (mq *pullMQRouter) run(ctx context.Context) {
 
 func (mq *pullMQRouter) reload(ctx context.Context) {
 	mq.Log.Debug("reloading routing rules", "baseline", mq.baseline)
+	// load routes from route server
 	resp, err := mq.grpcClient.GetWorkloadRoutes(ctx, &routesapi.WorkloadRoutesRequest{
 		BaselineWorkload: mq.baseline,
 	})
@@ -77,8 +83,8 @@ func (mq *pullMQRouter) reload(ctx context.Context) {
 
 	// update the routing map
 	mq.mu.Lock()
-	defer mq.mu.Unlock()
 	mq.routingMap = routingMap
+	mq.mu.Unlock()
 
 	// declare ourselves as initialized
 	select {
@@ -89,9 +95,13 @@ func (mq *pullMQRouter) reload(ctx context.Context) {
 
 }
 
-func (mq *pullMQRouter) ShouldProcess(routingKey string) bool {
-	// wait until initialized
-	<-mq.init
+func (mq *pullMQRouter) ShouldProcess(ctx context.Context, routingKey string) bool {
+	// wait until initialized or the context is done
+	select {
+	case <-mq.init:
+	case <-ctx.Done():
+		return false
+	}
 
 	// obtain a read lock
 	mq.mu.RLock()
@@ -106,12 +116,4 @@ func (mq *pullMQRouter) ShouldProcess(routingKey string) bool {
 	// 2. we are a sandboxed workload, in which case we will only process the
 	// message if the routing key points to our sandbox ID
 	return mq.routingMap[routingKey] == mq.sandboxID
-}
-
-func (mq *pullMQRouter) Close() {
-	select {
-	case <-mq.done:
-	default:
-		close(mq.done)
-	}
 }

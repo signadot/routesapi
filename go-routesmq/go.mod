@@ -1,4 +1,4 @@
-module github.com/signadot/routesapi/go-mq-sdk
+module github.com/signadot/routesapi/go-routesmq
 
 go 1.21.3
 
