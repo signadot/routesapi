@@ -1,0 +1,150 @@
+openapi: 3.0.1
+info:
+  title: Signadot Routes API
+  version: 1.0.0
+  description: >
+    The Signadot Routes API provides access to routing rules pertinent to
+    Signadot Sandboxes on a cluster with the Signadot Operator (>= v0.14.2)
+    installed.
+servers:
+  - url: http://routeserver.signadot.svc:7778
+paths:
+  /api/v1/workloads/routes:
+    get:
+      tags:
+        - RoutesService
+      summary: GetWorkloadRoutes
+      description: |-
+        GetWorkloadRoutes returns a set of workload routing rules, each of which
+        indicates how to direct requests destined to a given baseline workload
+        with a given routing key.
+      operationId: GetWorkloadRoutes
+      parameters:
+        - in: query
+          name: baselineKind
+          schema:
+            type: string
+          description: Baseline workload kind (e.g. Deployment, ArgoRollout)
+          example: Deployment
+        - in: query
+          name: baselineNamespace
+          schema:
+            type: string
+          description: Baseline workload namespace
+        - in: query
+          name: baselineName
+          schema:
+            type: string
+          description: Baseline workload name
+        - in: query
+          name: routingKey
+          schema:
+            type: string
+          description: The routing key associated with the request
+        - in: query
+          name: sandboxID
+          schema:
+            type: string
+          description: The routing key of the sandbox associated with the sandboxed destination workload
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/workloadRoutesResponse'
+components:
+  schemas:
+    workloadRoutesResponse:
+      type: object
+      description: |-
+        a GetRoutesResponse gives the set of WorkloadRules which match a given
+        GetWorkloadRoutes request
+      properties:
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/workloadRule'
+
+    workloadRule:
+      type: object
+      description: |-
+        A WorkloadRule r means: if a request 
+          1. has r.RoutingKey; and 
+          2. is originally destined to r.SandboxedWorkload.Baseline; and
+          3. is sent on a port indicated in one of r.PortRules pr
+          
+        then send it to the host and port indicated in any destination host and port
+        indicated in pr.destinations. Moreover, these destinations are all addresses
+        of r.SandboxedWorkload, any one of them can be used.
+      properties:
+        routingKey:
+          type: string
+          description: The routing key
+        sandboxedWorkload:
+          $ref: '#/components/schemas/sandboxedWorkload'
+          description: Sandboxed workload information
+        portRules:
+          description: Workload port rules
+          type: array
+          items:
+            $ref: '#/components/schemas/workloadPortRule'
+
+    sandboxedWorkload:
+      type: object
+      description: |-
+        A SandboxedWorkload represents a Fork or a Local workload
+        running in a sandbox.
+      properties:
+        sandboxID:
+          type: string
+          description: The routing key of a Sandbox
+        baseline:
+          $ref: '#/components/schemas/baselineWorkload'
+          description: The corresponding baseline workload
+
+    baselineWorkload:
+      type: object
+      description: |-
+        A BaselineWorkload identifies a given baseline workload. In the context
+        of a WorkloadRoutesRequest, all the fields are optional. In the context
+        of a response from the server, all the fields are filled in.
+      properties:
+        kind:
+          type: string
+          description: Baseline workload kind (e.g. Deployment, ArgoRollout)
+        namespace:
+          type: string
+          description: Baseline workload namespace
+        name:
+          type: string
+          description: Baseline workload name
+
+    workloadPortRule:
+      type: object
+      description: |-
+        WorkloadPortRule provides a mapping from a port on the workload to a set
+        of destinations. The workload port is the same as the target port of a
+        kubernetes service matching the workload. Each destination in the
+        response corresponds to a sandbox service matching the sandboxed
+        workload.  As a result, any of the destinations can be used.
+      properties:
+        workloadPort:
+          type: integer
+          description: Workload port
+        destinations:
+          type: array
+          items:
+            $ref: '#/components/schemas/location'
+
+    location:
+      type: object
+      description: |-
+        A TCP address as a host, port pair.
+      properties:
+        host:
+          type: string
+          description: Location host
+        port:
+          type: integer
+          description: Location port
