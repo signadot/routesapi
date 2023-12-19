@@ -12,6 +12,7 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 )
 
 // checks if the WorkloadPortRule type satisfies the MappedNullable interface at compile time
@@ -20,16 +21,19 @@ var _ MappedNullable = &WorkloadPortRule{}
 // WorkloadPortRule WorkloadPortRule provides a mapping from a port on the workload to a set of destinations. The workload port is the same as the target port of a kubernetes service matching the workload. Each destination in the response corresponds to a sandbox service matching the sandboxed workload.  As a result, any of the destinations can be used.
 type WorkloadPortRule struct {
 	// Workload port
-	WorkloadPort *int32 `json:"workloadPort,omitempty"`
+	WorkloadPort int32 `json:"workloadPort"`
 	Destinations []Location `json:"destinations,omitempty"`
 }
+
+type _WorkloadPortRule WorkloadPortRule
 
 // NewWorkloadPortRule instantiates a new WorkloadPortRule object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewWorkloadPortRule() *WorkloadPortRule {
+func NewWorkloadPortRule(workloadPort int32) *WorkloadPortRule {
 	this := WorkloadPortRule{}
+	this.WorkloadPort = workloadPort
 	return &this
 }
 
@@ -41,36 +45,28 @@ func NewWorkloadPortRuleWithDefaults() *WorkloadPortRule {
 	return &this
 }
 
-// GetWorkloadPort returns the WorkloadPort field value if set, zero value otherwise.
+// GetWorkloadPort returns the WorkloadPort field value
 func (o *WorkloadPortRule) GetWorkloadPort() int32 {
-	if o == nil || IsNil(o.WorkloadPort) {
+	if o == nil {
 		var ret int32
 		return ret
 	}
-	return *o.WorkloadPort
+
+	return o.WorkloadPort
 }
 
-// GetWorkloadPortOk returns a tuple with the WorkloadPort field value if set, nil otherwise
+// GetWorkloadPortOk returns a tuple with the WorkloadPort field value
 // and a boolean to check if the value has been set.
 func (o *WorkloadPortRule) GetWorkloadPortOk() (*int32, bool) {
-	if o == nil || IsNil(o.WorkloadPort) {
+	if o == nil {
 		return nil, false
 	}
-	return o.WorkloadPort, true
+	return &o.WorkloadPort, true
 }
 
-// HasWorkloadPort returns a boolean if a field has been set.
-func (o *WorkloadPortRule) HasWorkloadPort() bool {
-	if o != nil && !IsNil(o.WorkloadPort) {
-		return true
-	}
-
-	return false
-}
-
-// SetWorkloadPort gets a reference to the given int32 and assigns it to the WorkloadPort field.
+// SetWorkloadPort sets field value
 func (o *WorkloadPortRule) SetWorkloadPort(v int32) {
-	o.WorkloadPort = &v
+	o.WorkloadPort = v
 }
 
 // GetDestinations returns the Destinations field value if set, zero value otherwise.
@@ -115,13 +111,46 @@ func (o WorkloadPortRule) MarshalJSON() ([]byte, error) {
 
 func (o WorkloadPortRule) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	if !IsNil(o.WorkloadPort) {
-		toSerialize["workloadPort"] = o.WorkloadPort
-	}
+	toSerialize["workloadPort"] = o.WorkloadPort
 	if !IsNil(o.Destinations) {
 		toSerialize["destinations"] = o.Destinations
 	}
 	return toSerialize, nil
+}
+
+func (o *WorkloadPortRule) UnmarshalJSON(bytes []byte) (err error) {
+	// This validates that all required properties are included in the JSON object
+	// by unmarshalling the object into a generic map with string keys and checking
+	// that every required field exists as a key in the generic map.
+	requiredProperties := []string{
+		"workloadPort",
+	}
+
+	allProperties := make(map[string]interface{})
+
+	err = json.Unmarshal(bytes, &allProperties)
+
+	if err != nil {
+		return err;
+	}
+
+	for _, requiredProperty := range(requiredProperties) {
+		if _, exists := allProperties[requiredProperty]; !exists {
+			return fmt.Errorf("no value given for required property %v", requiredProperty)
+		}
+	}
+
+	varWorkloadPortRule := _WorkloadPortRule{}
+
+	err = json.Unmarshal(bytes, &varWorkloadPortRule)
+
+	if err != nil {
+		return err
+	}
+
+	*o = WorkloadPortRule(varWorkloadPortRule)
+
+	return err
 }
 
 type NullableWorkloadPortRule struct {

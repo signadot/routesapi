@@ -89,6 +89,9 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/workloadPortRule'
+      required:
+        - routingKey
+        - sandboxedWorkload
 
     sandboxedWorkload:
       type: object
@@ -102,6 +105,9 @@ components:
         baseline:
           $ref: '#/components/schemas/baselineWorkload'
           description: The corresponding baseline workload
+      required:
+        - sandboxID
+        - baseline
 
     baselineWorkload:
       type: object
@@ -119,6 +125,10 @@ components:
         name:
           type: string
           description: Baseline workload name
+      required:
+        - kind
+        - namespace
+        - name
 
     workloadPortRule:
       type: object
@@ -136,6 +146,8 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/location'
+      required:
+        - workloadPort
 
     location:
       type: object
@@ -148,3 +160,6 @@ components:
         port:
           type: integer
           description: Location port
+      required:
+        - host
+        - port

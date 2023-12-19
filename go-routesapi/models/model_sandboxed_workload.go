@@ -12,6 +12,7 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 )
 
 // checks if the SandboxedWorkload type satisfies the MappedNullable interface at compile time
@@ -20,16 +21,20 @@ var _ MappedNullable = &SandboxedWorkload{}
 // SandboxedWorkload A SandboxedWorkload represents a Fork or a Local workload running in a sandbox.
 type SandboxedWorkload struct {
 	// The routing key of a Sandbox
-	SandboxID *string `json:"sandboxID,omitempty"`
-	Baseline *BaselineWorkload `json:"baseline,omitempty"`
+	SandboxID string `json:"sandboxID"`
+	Baseline BaselineWorkload `json:"baseline"`
 }
+
+type _SandboxedWorkload SandboxedWorkload
 
 // NewSandboxedWorkload instantiates a new SandboxedWorkload object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewSandboxedWorkload() *SandboxedWorkload {
+func NewSandboxedWorkload(sandboxID string, baseline BaselineWorkload) *SandboxedWorkload {
 	this := SandboxedWorkload{}
+	this.SandboxID = sandboxID
+	this.Baseline = baseline
 	return &this
 }
 
@@ -41,68 +46,52 @@ func NewSandboxedWorkloadWithDefaults() *SandboxedWorkload {
 	return &this
 }
 
-// GetSandboxID returns the SandboxID field value if set, zero value otherwise.
+// GetSandboxID returns the SandboxID field value
 func (o *SandboxedWorkload) GetSandboxID() string {
-	if o == nil || IsNil(o.SandboxID) {
+	if o == nil {
 		var ret string
 		return ret
 	}
-	return *o.SandboxID
+
+	return o.SandboxID
 }
 
-// GetSandboxIDOk returns a tuple with the SandboxID field value if set, nil otherwise
+// GetSandboxIDOk returns a tuple with the SandboxID field value
 // and a boolean to check if the value has been set.
 func (o *SandboxedWorkload) GetSandboxIDOk() (*string, bool) {
-	if o == nil || IsNil(o.SandboxID) {
+	if o == nil {
 		return nil, false
 	}
-	return o.SandboxID, true
+	return &o.SandboxID, true
 }
 
-// HasSandboxID returns a boolean if a field has been set.
-func (o *SandboxedWorkload) HasSandboxID() bool {
-	if o != nil && !IsNil(o.SandboxID) {
-		return true
-	}
-
-	return false
-}
-
-// SetSandboxID gets a reference to the given string and assigns it to the SandboxID field.
+// SetSandboxID sets field value
 func (o *SandboxedWorkload) SetSandboxID(v string) {
-	o.SandboxID = &v
+	o.SandboxID = v
 }
 
-// GetBaseline returns the Baseline field value if set, zero value otherwise.
+// GetBaseline returns the Baseline field value
 func (o *SandboxedWorkload) GetBaseline() BaselineWorkload {
-	if o == nil || IsNil(o.Baseline) {
+	if o == nil {
 		var ret BaselineWorkload
 		return ret
 	}
-	return *o.Baseline
+
+	return o.Baseline
 }
 
-// GetBaselineOk returns a tuple with the Baseline field value if set, nil otherwise
+// GetBaselineOk returns a tuple with the Baseline field value
 // and a boolean to check if the value has been set.
 func (o *SandboxedWorkload) GetBaselineOk() (*BaselineWorkload, bool) {
-	if o == nil || IsNil(o.Baseline) {
+	if o == nil {
 		return nil, false
 	}
-	return o.Baseline, true
+	return &o.Baseline, true
 }
 
-// HasBaseline returns a boolean if a field has been set.
-func (o *SandboxedWorkload) HasBaseline() bool {
-	if o != nil && !IsNil(o.Baseline) {
-		return true
-	}
-
-	return false
-}
-
-// SetBaseline gets a reference to the given BaselineWorkload and assigns it to the Baseline field.
+// SetBaseline sets field value
 func (o *SandboxedWorkload) SetBaseline(v BaselineWorkload) {
-	o.Baseline = &v
+	o.Baseline = v
 }
 
 func (o SandboxedWorkload) MarshalJSON() ([]byte, error) {
@@ -115,13 +104,45 @@ func (o SandboxedWorkload) MarshalJSON() ([]byte, error) {
 
 func (o SandboxedWorkload) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	if !IsNil(o.SandboxID) {
-		toSerialize["sandboxID"] = o.SandboxID
-	}
-	if !IsNil(o.Baseline) {
-		toSerialize["baseline"] = o.Baseline
-	}
+	toSerialize["sandboxID"] = o.SandboxID
+	toSerialize["baseline"] = o.Baseline
 	return toSerialize, nil
+}
+
+func (o *SandboxedWorkload) UnmarshalJSON(bytes []byte) (err error) {
+	// This validates that all required properties are included in the JSON object
+	// by unmarshalling the object into a generic map with string keys and checking
+	// that every required field exists as a key in the generic map.
+	requiredProperties := []string{
+		"sandboxID",
+		"baseline",
+	}
+
+	allProperties := make(map[string]interface{})
+
+	err = json.Unmarshal(bytes, &allProperties)
+
+	if err != nil {
+		return err;
+	}
+
+	for _, requiredProperty := range(requiredProperties) {
+		if _, exists := allProperties[requiredProperty]; !exists {
+			return fmt.Errorf("no value given for required property %v", requiredProperty)
+		}
+	}
+
+	varSandboxedWorkload := _SandboxedWorkload{}
+
+	err = json.Unmarshal(bytes, &varSandboxedWorkload)
+
+	if err != nil {
+		return err
+	}
+
+	*o = SandboxedWorkload(varSandboxedWorkload)
+
+	return err
 }
 
 type NullableSandboxedWorkload struct {

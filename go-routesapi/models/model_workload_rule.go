@@ -12,6 +12,7 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 )
 
 // checks if the WorkloadRule type satisfies the MappedNullable interface at compile time
@@ -20,18 +21,22 @@ var _ MappedNullable = &WorkloadRule{}
 // WorkloadRule A WorkloadRule r means: if a request    1. has r.RoutingKey; and    2. is originally destined to r.SandboxedWorkload.Baseline; and   3. is sent on a port indicated in one of r.PortRules pr    then send it to the host and port indicated in any destination host and port indicated in pr.destinations. Moreover, these destinations are all addresses of r.SandboxedWorkload, any one of them can be used.
 type WorkloadRule struct {
 	// The routing key
-	RoutingKey *string `json:"routingKey,omitempty"`
-	SandboxedWorkload *SandboxedWorkload `json:"sandboxedWorkload,omitempty"`
+	RoutingKey string `json:"routingKey"`
+	SandboxedWorkload SandboxedWorkload `json:"sandboxedWorkload"`
 	// Workload port rules
 	PortRules []WorkloadPortRule `json:"portRules,omitempty"`
 }
+
+type _WorkloadRule WorkloadRule
 
 // NewWorkloadRule instantiates a new WorkloadRule object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewWorkloadRule() *WorkloadRule {
+func NewWorkloadRule(routingKey string, sandboxedWorkload SandboxedWorkload) *WorkloadRule {
 	this := WorkloadRule{}
+	this.RoutingKey = routingKey
+	this.SandboxedWorkload = sandboxedWorkload
 	return &this
 }
 
@@ -43,68 +48,52 @@ func NewWorkloadRuleWithDefaults() *WorkloadRule {
 	return &this
 }
 
-// GetRoutingKey returns the RoutingKey field value if set, zero value otherwise.
+// GetRoutingKey returns the RoutingKey field value
 func (o *WorkloadRule) GetRoutingKey() string {
-	if o == nil || IsNil(o.RoutingKey) {
+	if o == nil {
 		var ret string
 		return ret
 	}
-	return *o.RoutingKey
+
+	return o.RoutingKey
 }
 
-// GetRoutingKeyOk returns a tuple with the RoutingKey field value if set, nil otherwise
+// GetRoutingKeyOk returns a tuple with the RoutingKey field value
 // and a boolean to check if the value has been set.
 func (o *WorkloadRule) GetRoutingKeyOk() (*string, bool) {
-	if o == nil || IsNil(o.RoutingKey) {
+	if o == nil {
 		return nil, false
 	}
-	return o.RoutingKey, true
+	return &o.RoutingKey, true
 }
 
-// HasRoutingKey returns a boolean if a field has been set.
-func (o *WorkloadRule) HasRoutingKey() bool {
-	if o != nil && !IsNil(o.RoutingKey) {
-		return true
-	}
-
-	return false
-}
-
-// SetRoutingKey gets a reference to the given string and assigns it to the RoutingKey field.
+// SetRoutingKey sets field value
 func (o *WorkloadRule) SetRoutingKey(v string) {
-	o.RoutingKey = &v
+	o.RoutingKey = v
 }
 
-// GetSandboxedWorkload returns the SandboxedWorkload field value if set, zero value otherwise.
+// GetSandboxedWorkload returns the SandboxedWorkload field value
 func (o *WorkloadRule) GetSandboxedWorkload() SandboxedWorkload {
-	if o == nil || IsNil(o.SandboxedWorkload) {
+	if o == nil {
 		var ret SandboxedWorkload
 		return ret
 	}
-	return *o.SandboxedWorkload
+
+	return o.SandboxedWorkload
 }
 
-// GetSandboxedWorkloadOk returns a tuple with the SandboxedWorkload field value if set, nil otherwise
+// GetSandboxedWorkloadOk returns a tuple with the SandboxedWorkload field value
 // and a boolean to check if the value has been set.
 func (o *WorkloadRule) GetSandboxedWorkloadOk() (*SandboxedWorkload, bool) {
-	if o == nil || IsNil(o.SandboxedWorkload) {
+	if o == nil {
 		return nil, false
 	}
-	return o.SandboxedWorkload, true
+	return &o.SandboxedWorkload, true
 }
 
-// HasSandboxedWorkload returns a boolean if a field has been set.
-func (o *WorkloadRule) HasSandboxedWorkload() bool {
-	if o != nil && !IsNil(o.SandboxedWorkload) {
-		return true
-	}
-
-	return false
-}
-
-// SetSandboxedWorkload gets a reference to the given SandboxedWorkload and assigns it to the SandboxedWorkload field.
+// SetSandboxedWorkload sets field value
 func (o *WorkloadRule) SetSandboxedWorkload(v SandboxedWorkload) {
-	o.SandboxedWorkload = &v
+	o.SandboxedWorkload = v
 }
 
 // GetPortRules returns the PortRules field value if set, zero value otherwise.
@@ -149,16 +138,48 @@ func (o WorkloadRule) MarshalJSON() ([]byte, error) {
 
 func (o WorkloadRule) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	if !IsNil(o.RoutingKey) {
-		toSerialize["routingKey"] = o.RoutingKey
-	}
-	if !IsNil(o.SandboxedWorkload) {
-		toSerialize["sandboxedWorkload"] = o.SandboxedWorkload
-	}
+	toSerialize["routingKey"] = o.RoutingKey
+	toSerialize["sandboxedWorkload"] = o.SandboxedWorkload
 	if !IsNil(o.PortRules) {
 		toSerialize["portRules"] = o.PortRules
 	}
 	return toSerialize, nil
+}
+
+func (o *WorkloadRule) UnmarshalJSON(bytes []byte) (err error) {
+	// This validates that all required properties are included in the JSON object
+	// by unmarshalling the object into a generic map with string keys and checking
+	// that every required field exists as a key in the generic map.
+	requiredProperties := []string{
+		"routingKey",
+		"sandboxedWorkload",
+	}
+
+	allProperties := make(map[string]interface{})
+
+	err = json.Unmarshal(bytes, &allProperties)
+
+	if err != nil {
+		return err;
+	}
+
+	for _, requiredProperty := range(requiredProperties) {
+		if _, exists := allProperties[requiredProperty]; !exists {
+			return fmt.Errorf("no value given for required property %v", requiredProperty)
+		}
+	}
+
+	varWorkloadRule := _WorkloadRule{}
+
+	err = json.Unmarshal(bytes, &varWorkloadRule)
+
+	if err != nil {
+		return err
+	}
+
+	*o = WorkloadRule(varWorkloadRule)
+
+	return err
 }
 
 type NullableWorkloadRule struct {

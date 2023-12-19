@@ -12,6 +12,7 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 )
 
 // checks if the BaselineWorkload type satisfies the MappedNullable interface at compile time
@@ -20,19 +21,24 @@ var _ MappedNullable = &BaselineWorkload{}
 // BaselineWorkload A BaselineWorkload identifies a given baseline workload. In the context of a WorkloadRoutesRequest, all the fields are optional. In the context of a response from the server, all the fields are filled in.
 type BaselineWorkload struct {
 	// Baseline workload kind (e.g. Deployment, ArgoRollout)
-	Kind *string `json:"kind,omitempty"`
+	Kind string `json:"kind"`
 	// Baseline workload namespace
-	Namespace *string `json:"namespace,omitempty"`
+	Namespace string `json:"namespace"`
 	// Baseline workload name
-	Name *string `json:"name,omitempty"`
+	Name string `json:"name"`
 }
+
+type _BaselineWorkload BaselineWorkload
 
 // NewBaselineWorkload instantiates a new BaselineWorkload object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewBaselineWorkload() *BaselineWorkload {
+func NewBaselineWorkload(kind string, namespace string, name string) *BaselineWorkload {
 	this := BaselineWorkload{}
+	this.Kind = kind
+	this.Namespace = namespace
+	this.Name = name
 	return &this
 }
 
@@ -44,100 +50,76 @@ func NewBaselineWorkloadWithDefaults() *BaselineWorkload {
 	return &this
 }
 
-// GetKind returns the Kind field value if set, zero value otherwise.
+// GetKind returns the Kind field value
 func (o *BaselineWorkload) GetKind() string {
-	if o == nil || IsNil(o.Kind) {
+	if o == nil {
 		var ret string
 		return ret
 	}
-	return *o.Kind
+
+	return o.Kind
 }
 
-// GetKindOk returns a tuple with the Kind field value if set, nil otherwise
+// GetKindOk returns a tuple with the Kind field value
 // and a boolean to check if the value has been set.
 func (o *BaselineWorkload) GetKindOk() (*string, bool) {
-	if o == nil || IsNil(o.Kind) {
+	if o == nil {
 		return nil, false
 	}
-	return o.Kind, true
+	return &o.Kind, true
 }
 
-// HasKind returns a boolean if a field has been set.
-func (o *BaselineWorkload) HasKind() bool {
-	if o != nil && !IsNil(o.Kind) {
-		return true
-	}
-
-	return false
-}
-
-// SetKind gets a reference to the given string and assigns it to the Kind field.
+// SetKind sets field value
 func (o *BaselineWorkload) SetKind(v string) {
-	o.Kind = &v
+	o.Kind = v
 }
 
-// GetNamespace returns the Namespace field value if set, zero value otherwise.
+// GetNamespace returns the Namespace field value
 func (o *BaselineWorkload) GetNamespace() string {
-	if o == nil || IsNil(o.Namespace) {
+	if o == nil {
 		var ret string
 		return ret
 	}
-	return *o.Namespace
+
+	return o.Namespace
 }
 
-// GetNamespaceOk returns a tuple with the Namespace field value if set, nil otherwise
+// GetNamespaceOk returns a tuple with the Namespace field value
 // and a boolean to check if the value has been set.
 func (o *BaselineWorkload) GetNamespaceOk() (*string, bool) {
-	if o == nil || IsNil(o.Namespace) {
+	if o == nil {
 		return nil, false
 	}
-	return o.Namespace, true
+	return &o.Namespace, true
 }
 
-// HasNamespace returns a boolean if a field has been set.
-func (o *BaselineWorkload) HasNamespace() bool {
-	if o != nil && !IsNil(o.Namespace) {
-		return true
-	}
-
-	return false
-}
-
-// SetNamespace gets a reference to the given string and assigns it to the Namespace field.
+// SetNamespace sets field value
 func (o *BaselineWorkload) SetNamespace(v string) {
-	o.Namespace = &v
+	o.Namespace = v
 }
 
-// GetName returns the Name field value if set, zero value otherwise.
+// GetName returns the Name field value
 func (o *BaselineWorkload) GetName() string {
-	if o == nil || IsNil(o.Name) {
+	if o == nil {
 		var ret string
 		return ret
 	}
-	return *o.Name
+
+	return o.Name
 }
 
-// GetNameOk returns a tuple with the Name field value if set, nil otherwise
+// GetNameOk returns a tuple with the Name field value
 // and a boolean to check if the value has been set.
 func (o *BaselineWorkload) GetNameOk() (*string, bool) {
-	if o == nil || IsNil(o.Name) {
+	if o == nil {
 		return nil, false
 	}
-	return o.Name, true
+	return &o.Name, true
 }
 
-// HasName returns a boolean if a field has been set.
-func (o *BaselineWorkload) HasName() bool {
-	if o != nil && !IsNil(o.Name) {
-		return true
-	}
-
-	return false
-}
-
-// SetName gets a reference to the given string and assigns it to the Name field.
+// SetName sets field value
 func (o *BaselineWorkload) SetName(v string) {
-	o.Name = &v
+	o.Name = v
 }
 
 func (o BaselineWorkload) MarshalJSON() ([]byte, error) {
@@ -150,16 +132,47 @@ func (o BaselineWorkload) MarshalJSON() ([]byte, error) {
 
 func (o BaselineWorkload) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	if !IsNil(o.Kind) {
-		toSerialize["kind"] = o.Kind
-	}
-	if !IsNil(o.Namespace) {
-		toSerialize["namespace"] = o.Namespace
-	}
-	if !IsNil(o.Name) {
-		toSerialize["name"] = o.Name
-	}
+	toSerialize["kind"] = o.Kind
+	toSerialize["namespace"] = o.Namespace
+	toSerialize["name"] = o.Name
 	return toSerialize, nil
+}
+
+func (o *BaselineWorkload) UnmarshalJSON(bytes []byte) (err error) {
+	// This validates that all required properties are included in the JSON object
+	// by unmarshalling the object into a generic map with string keys and checking
+	// that every required field exists as a key in the generic map.
+	requiredProperties := []string{
+		"kind",
+		"namespace",
+		"name",
+	}
+
+	allProperties := make(map[string]interface{})
+
+	err = json.Unmarshal(bytes, &allProperties)
+
+	if err != nil {
+		return err;
+	}
+
+	for _, requiredProperty := range(requiredProperties) {
+		if _, exists := allProperties[requiredProperty]; !exists {
+			return fmt.Errorf("no value given for required property %v", requiredProperty)
+		}
+	}
+
+	varBaselineWorkload := _BaselineWorkload{}
+
+	err = json.Unmarshal(bytes, &varBaselineWorkload)
+
+	if err != nil {
+		return err
+	}
+
+	*o = BaselineWorkload(varBaselineWorkload)
+
+	return err
 }
 
 type NullableBaselineWorkload struct {

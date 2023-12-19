@@ -12,6 +12,7 @@ package models
 
 import (
 	"encoding/json"
+	"fmt"
 )
 
 // checks if the Location type satisfies the MappedNullable interface at compile time
@@ -20,17 +21,21 @@ var _ MappedNullable = &Location{}
 // Location A TCP address as a host, port pair.
 type Location struct {
 	// Location host
-	Host *string `json:"host,omitempty"`
+	Host string `json:"host"`
 	// Location port
-	Port *int32 `json:"port,omitempty"`
+	Port int32 `json:"port"`
 }
+
+type _Location Location
 
 // NewLocation instantiates a new Location object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewLocation() *Location {
+func NewLocation(host string, port int32) *Location {
 	this := Location{}
+	this.Host = host
+	this.Port = port
 	return &this
 }
 
@@ -42,68 +47,52 @@ func NewLocationWithDefaults() *Location {
 	return &this
 }
 
-// GetHost returns the Host field value if set, zero value otherwise.
+// GetHost returns the Host field value
 func (o *Location) GetHost() string {
-	if o == nil || IsNil(o.Host) {
+	if o == nil {
 		var ret string
 		return ret
 	}
-	return *o.Host
+
+	return o.Host
 }
 
-// GetHostOk returns a tuple with the Host field value if set, nil otherwise
+// GetHostOk returns a tuple with the Host field value
 // and a boolean to check if the value has been set.
 func (o *Location) GetHostOk() (*string, bool) {
-	if o == nil || IsNil(o.Host) {
+	if o == nil {
 		return nil, false
 	}
-	return o.Host, true
+	return &o.Host, true
 }
 
-// HasHost returns a boolean if a field has been set.
-func (o *Location) HasHost() bool {
-	if o != nil && !IsNil(o.Host) {
-		return true
-	}
-
-	return false
-}
-
-// SetHost gets a reference to the given string and assigns it to the Host field.
+// SetHost sets field value
 func (o *Location) SetHost(v string) {
-	o.Host = &v
+	o.Host = v
 }
 
-// GetPort returns the Port field value if set, zero value otherwise.
+// GetPort returns the Port field value
 func (o *Location) GetPort() int32 {
-	if o == nil || IsNil(o.Port) {
+	if o == nil {
 		var ret int32
 		return ret
 	}
-	return *o.Port
+
+	return o.Port
 }
 
-// GetPortOk returns a tuple with the Port field value if set, nil otherwise
+// GetPortOk returns a tuple with the Port field value
 // and a boolean to check if the value has been set.
 func (o *Location) GetPortOk() (*int32, bool) {
-	if o == nil || IsNil(o.Port) {
+	if o == nil {
 		return nil, false
 	}
-	return o.Port, true
+	return &o.Port, true
 }
 
-// HasPort returns a boolean if a field has been set.
-func (o *Location) HasPort() bool {
-	if o != nil && !IsNil(o.Port) {
-		return true
-	}
-
-	return false
-}
-
-// SetPort gets a reference to the given int32 and assigns it to the Port field.
+// SetPort sets field value
 func (o *Location) SetPort(v int32) {
-	o.Port = &v
+	o.Port = v
 }
 
 func (o Location) MarshalJSON() ([]byte, error) {
@@ -116,13 +105,45 @@ func (o Location) MarshalJSON() ([]byte, error) {
 
 func (o Location) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	if !IsNil(o.Host) {
-		toSerialize["host"] = o.Host
-	}
-	if !IsNil(o.Port) {
-		toSerialize["port"] = o.Port
-	}
+	toSerialize["host"] = o.Host
+	toSerialize["port"] = o.Port
 	return toSerialize, nil
+}
+
+func (o *Location) UnmarshalJSON(bytes []byte) (err error) {
+	// This validates that all required properties are included in the JSON object
+	// by unmarshalling the object into a generic map with string keys and checking
+	// that every required field exists as a key in the generic map.
+	requiredProperties := []string{
+		"host",
+		"port",
+	}
+
+	allProperties := make(map[string]interface{})
+
+	err = json.Unmarshal(bytes, &allProperties)
+
+	if err != nil {
+		return err;
+	}
+
+	for _, requiredProperty := range(requiredProperties) {
+		if _, exists := allProperties[requiredProperty]; !exists {
+			return fmt.Errorf("no value given for required property %v", requiredProperty)
+		}
+	}
+
+	varLocation := _Location{}
+
+	err = json.Unmarshal(bytes, &varLocation)
+
+	if err != nil {
+		return err
+	}
+
+	*o = Location(varLocation)
+
+	return err
 }
 
 type NullableLocation struct {
