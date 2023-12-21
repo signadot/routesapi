@@ -78,7 +78,10 @@ components:
     workloadRoute:
       type: object
       description: |-
-        A WorkloadRoute defines for a given baseline and a routing key, a single `destinationSandbox` and `mappings`. The mappings map each port of the baseline workload with corresponding TCP addresses belonging to the `destinationSandbox` where traffic is routed instead.
+        A WorkloadRoute defines for a given baseline and a routing key, a 
+        single `destinationSandbox` and `mappings`. The mappings map each port 
+        of the baseline workload with corresponding TCP addresses belonging to 
+        the `destinationSandbox` where traffic is routed instead.
       properties:
         routingKey:
           type: string
