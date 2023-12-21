@@ -18,7 +18,7 @@ import (
 // checks if the BaselineWorkload type satisfies the MappedNullable interface at compile time
 var _ MappedNullable = &BaselineWorkload{}
 
-// BaselineWorkload A BaselineWorkload identifies a given baseline workload. In the context of a WorkloadRoutesRequest, all the fields are optional. In the context of a response from the server, all the fields are filled in.
+// BaselineWorkload A BaselineWorkload identifies a given baseline workload.
 type BaselineWorkload struct {
 	// Baseline workload kind (e.g. Deployment, ArgoRollout)
 	Kind string `json:"kind"`

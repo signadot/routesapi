@@ -22,13 +22,13 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RoutesClient interface {
-	// GetWorkloadRoutes returns a set of workload routing rules, each of which
-	// indicates how to direct requests destined to a given baseline workload with
-	// a given routing key.
-	GetWorkloadRoutes(ctx context.Context, in *WorkloadRoutesRequest, opts ...grpc.CallOption) (*GetRoutesResponse, error)
+	// GetWorkloadRoutes returns a set of workload routes, each of which indicates
+	// how to direct requests destined to a given baseline workload with a given
+	// routing key.
+	GetWorkloadRoutes(ctx context.Context, in *WorkloadRoutesRequest, opts ...grpc.CallOption) (*GetWorkloadRoutesResponse, error)
 	// WatchWorkloadRoutes provides a stream of diff operations which operate on a
-	// set of workload routing rules to maintain the routing rules in near real
-	// time with in-cluster Sandboxes and RouteGroups.
+	// set of workload routes to maintain the routes in near real time with
+	// in-cluster Sandboxes and RouteGroups.
 	WatchWorkloadRoutes(ctx context.Context, in *WorkloadRoutesRequest, opts ...grpc.CallOption) (Routes_WatchWorkloadRoutesClient, error)
 }
 
@@ -40,8 +40,8 @@ func NewRoutesClient(cc grpc.ClientConnInterface) RoutesClient {
 	return &routesClient{cc}
 }
 
-func (c *routesClient) GetWorkloadRoutes(ctx context.Context, in *WorkloadRoutesRequest, opts ...grpc.CallOption) (*GetRoutesResponse, error) {
-	out := new(GetRoutesResponse)
+func (c *routesClient) GetWorkloadRoutes(ctx context.Context, in *WorkloadRoutesRequest, opts ...grpc.CallOption) (*GetWorkloadRoutesResponse, error) {
+	out := new(GetWorkloadRoutesResponse)
 	err := c.cc.Invoke(ctx, "/routes.Routes/GetWorkloadRoutes", in, out, opts...)
 	if err != nil {
 		return nil, err
@@ -65,7 +65,7 @@ func (c *routesClient) WatchWorkloadRoutes(ctx context.Context, in *WorkloadRout
 }
 
 type Routes_WatchWorkloadRoutesClient interface {
-	Recv() (*WorkloadRuleOp, error)
+	Recv() (*WorkloadRouteOp, error)
 	grpc.ClientStream
 }
 
@@ -73,8 +73,8 @@ type routesWatchWorkloadRoutesClient struct {
 	grpc.ClientStream
 }
 
-func (x *routesWatchWorkloadRoutesClient) Recv() (*WorkloadRuleOp, error) {
-	m := new(WorkloadRuleOp)
+func (x *routesWatchWorkloadRoutesClient) Recv() (*WorkloadRouteOp, error) {
+	m := new(WorkloadRouteOp)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -85,13 +85,13 @@ func (x *routesWatchWorkloadRoutesClient) Recv() (*WorkloadRuleOp, error) {
 // All implementations must embed UnimplementedRoutesServer
 // for forward compatibility
 type RoutesServer interface {
-	// GetWorkloadRoutes returns a set of workload routing rules, each of which
-	// indicates how to direct requests destined to a given baseline workload with
-	// a given routing key.
-	GetWorkloadRoutes(context.Context, *WorkloadRoutesRequest) (*GetRoutesResponse, error)
+	// GetWorkloadRoutes returns a set of workload routes, each of which indicates
+	// how to direct requests destined to a given baseline workload with a given
+	// routing key.
+	GetWorkloadRoutes(context.Context, *WorkloadRoutesRequest) (*GetWorkloadRoutesResponse, error)
 	// WatchWorkloadRoutes provides a stream of diff operations which operate on a
-	// set of workload routing rules to maintain the routing rules in near real
-	// time with in-cluster Sandboxes and RouteGroups.
+	// set of workload routes to maintain the routes in near real time with
+	// in-cluster Sandboxes and RouteGroups.
 	WatchWorkloadRoutes(*WorkloadRoutesRequest, Routes_WatchWorkloadRoutesServer) error
 	mustEmbedUnimplementedRoutesServer()
 }
@@ -100,7 +100,7 @@ type RoutesServer interface {
 type UnimplementedRoutesServer struct {
 }
 
-func (UnimplementedRoutesServer) GetWorkloadRoutes(context.Context, *WorkloadRoutesRequest) (*GetRoutesResponse, error) {
+func (UnimplementedRoutesServer) GetWorkloadRoutes(context.Context, *WorkloadRoutesRequest) (*GetWorkloadRoutesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetWorkloadRoutes not implemented")
 }
 func (UnimplementedRoutesServer) WatchWorkloadRoutes(*WorkloadRoutesRequest, Routes_WatchWorkloadRoutesServer) error {
@@ -146,7 +146,7 @@ func _Routes_WatchWorkloadRoutes_Handler(srv interface{}, stream grpc.ServerStre
 }
 
 type Routes_WatchWorkloadRoutesServer interface {
-	Send(*WorkloadRuleOp) error
+	Send(*WorkloadRouteOp) error
 	grpc.ServerStream
 }
 
@@ -154,7 +154,7 @@ type routesWatchWorkloadRoutesServer struct {
 	grpc.ServerStream
 }
 
-func (x *routesWatchWorkloadRoutesServer) Send(m *WorkloadRuleOp) error {
+func (x *routesWatchWorkloadRoutesServer) Send(m *WorkloadRouteOp) error {
 	return x.ServerStream.SendMsg(m)
 }
 

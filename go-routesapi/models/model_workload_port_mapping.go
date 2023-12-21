@@ -15,38 +15,38 @@ import (
 	"fmt"
 )
 
-// checks if the WorkloadPortRule type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &WorkloadPortRule{}
+// checks if the WorkloadPortMapping type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &WorkloadPortMapping{}
 
-// WorkloadPortRule WorkloadPortRule provides a mapping from a port on the workload to a set of destinations. The workload port is the same as the target port of a kubernetes service matching the workload. Each destination in the response corresponds to a sandbox service matching the sandboxed workload.  As a result, any of the destinations can be used.
-type WorkloadPortRule struct {
+// WorkloadPortMapping A WorkloadPortMapping provides a mapping from a port on the workload to a set of destinations. The workload port is the same as the target port of a kubernetes service matching the workload. Each destination in the response corresponds to a sandbox service matching the sandboxed workload.  As a result, any of the destinations can be used.
+type WorkloadPortMapping struct {
 	// Workload port
 	WorkloadPort int32 `json:"workloadPort"`
 	Destinations []Location `json:"destinations,omitempty"`
 }
 
-type _WorkloadPortRule WorkloadPortRule
+type _WorkloadPortMapping WorkloadPortMapping
 
-// NewWorkloadPortRule instantiates a new WorkloadPortRule object
+// NewWorkloadPortMapping instantiates a new WorkloadPortMapping object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewWorkloadPortRule(workloadPort int32) *WorkloadPortRule {
-	this := WorkloadPortRule{}
+func NewWorkloadPortMapping(workloadPort int32) *WorkloadPortMapping {
+	this := WorkloadPortMapping{}
 	this.WorkloadPort = workloadPort
 	return &this
 }
 
-// NewWorkloadPortRuleWithDefaults instantiates a new WorkloadPortRule object
+// NewWorkloadPortMappingWithDefaults instantiates a new WorkloadPortMapping object
 // This constructor will only assign default values to properties that have it defined,
 // but it doesn't guarantee that properties required by API are set
-func NewWorkloadPortRuleWithDefaults() *WorkloadPortRule {
-	this := WorkloadPortRule{}
+func NewWorkloadPortMappingWithDefaults() *WorkloadPortMapping {
+	this := WorkloadPortMapping{}
 	return &this
 }
 
 // GetWorkloadPort returns the WorkloadPort field value
-func (o *WorkloadPortRule) GetWorkloadPort() int32 {
+func (o *WorkloadPortMapping) GetWorkloadPort() int32 {
 	if o == nil {
 		var ret int32
 		return ret
@@ -57,7 +57,7 @@ func (o *WorkloadPortRule) GetWorkloadPort() int32 {
 
 // GetWorkloadPortOk returns a tuple with the WorkloadPort field value
 // and a boolean to check if the value has been set.
-func (o *WorkloadPortRule) GetWorkloadPortOk() (*int32, bool) {
+func (o *WorkloadPortMapping) GetWorkloadPortOk() (*int32, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -65,12 +65,12 @@ func (o *WorkloadPortRule) GetWorkloadPortOk() (*int32, bool) {
 }
 
 // SetWorkloadPort sets field value
-func (o *WorkloadPortRule) SetWorkloadPort(v int32) {
+func (o *WorkloadPortMapping) SetWorkloadPort(v int32) {
 	o.WorkloadPort = v
 }
 
 // GetDestinations returns the Destinations field value if set, zero value otherwise.
-func (o *WorkloadPortRule) GetDestinations() []Location {
+func (o *WorkloadPortMapping) GetDestinations() []Location {
 	if o == nil || IsNil(o.Destinations) {
 		var ret []Location
 		return ret
@@ -80,7 +80,7 @@ func (o *WorkloadPortRule) GetDestinations() []Location {
 
 // GetDestinationsOk returns a tuple with the Destinations field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *WorkloadPortRule) GetDestinationsOk() ([]Location, bool) {
+func (o *WorkloadPortMapping) GetDestinationsOk() ([]Location, bool) {
 	if o == nil || IsNil(o.Destinations) {
 		return nil, false
 	}
@@ -88,7 +88,7 @@ func (o *WorkloadPortRule) GetDestinationsOk() ([]Location, bool) {
 }
 
 // HasDestinations returns a boolean if a field has been set.
-func (o *WorkloadPortRule) HasDestinations() bool {
+func (o *WorkloadPortMapping) HasDestinations() bool {
 	if o != nil && !IsNil(o.Destinations) {
 		return true
 	}
@@ -97,11 +97,11 @@ func (o *WorkloadPortRule) HasDestinations() bool {
 }
 
 // SetDestinations gets a reference to the given []Location and assigns it to the Destinations field.
-func (o *WorkloadPortRule) SetDestinations(v []Location) {
+func (o *WorkloadPortMapping) SetDestinations(v []Location) {
 	o.Destinations = v
 }
 
-func (o WorkloadPortRule) MarshalJSON() ([]byte, error) {
+func (o WorkloadPortMapping) MarshalJSON() ([]byte, error) {
 	toSerialize,err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
@@ -109,7 +109,7 @@ func (o WorkloadPortRule) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
-func (o WorkloadPortRule) ToMap() (map[string]interface{}, error) {
+func (o WorkloadPortMapping) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["workloadPort"] = o.WorkloadPort
 	if !IsNil(o.Destinations) {
@@ -118,7 +118,7 @@ func (o WorkloadPortRule) ToMap() (map[string]interface{}, error) {
 	return toSerialize, nil
 }
 
-func (o *WorkloadPortRule) UnmarshalJSON(bytes []byte) (err error) {
+func (o *WorkloadPortMapping) UnmarshalJSON(bytes []byte) (err error) {
 	// This validates that all required properties are included in the JSON object
 	// by unmarshalling the object into a generic map with string keys and checking
 	// that every required field exists as a key in the generic map.
@@ -140,51 +140,51 @@ func (o *WorkloadPortRule) UnmarshalJSON(bytes []byte) (err error) {
 		}
 	}
 
-	varWorkloadPortRule := _WorkloadPortRule{}
+	varWorkloadPortMapping := _WorkloadPortMapping{}
 
-	err = json.Unmarshal(bytes, &varWorkloadPortRule)
+	err = json.Unmarshal(bytes, &varWorkloadPortMapping)
 
 	if err != nil {
 		return err
 	}
 
-	*o = WorkloadPortRule(varWorkloadPortRule)
+	*o = WorkloadPortMapping(varWorkloadPortMapping)
 
 	return err
 }
 
-type NullableWorkloadPortRule struct {
-	value *WorkloadPortRule
+type NullableWorkloadPortMapping struct {
+	value *WorkloadPortMapping
 	isSet bool
 }
 
-func (v NullableWorkloadPortRule) Get() *WorkloadPortRule {
+func (v NullableWorkloadPortMapping) Get() *WorkloadPortMapping {
 	return v.value
 }
 
-func (v *NullableWorkloadPortRule) Set(val *WorkloadPortRule) {
+func (v *NullableWorkloadPortMapping) Set(val *WorkloadPortMapping) {
 	v.value = val
 	v.isSet = true
 }
 
-func (v NullableWorkloadPortRule) IsSet() bool {
+func (v NullableWorkloadPortMapping) IsSet() bool {
 	return v.isSet
 }
 
-func (v *NullableWorkloadPortRule) Unset() {
+func (v *NullableWorkloadPortMapping) Unset() {
 	v.value = nil
 	v.isSet = false
 }
 
-func NewNullableWorkloadPortRule(val *WorkloadPortRule) *NullableWorkloadPortRule {
-	return &NullableWorkloadPortRule{value: val, isSet: true}
+func NewNullableWorkloadPortMapping(val *WorkloadPortMapping) *NullableWorkloadPortMapping {
+	return &NullableWorkloadPortMapping{value: val, isSet: true}
 }
 
-func (v NullableWorkloadPortRule) MarshalJSON() ([]byte, error) {
+func (v NullableWorkloadPortMapping) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.value)
 }
 
-func (v *NullableWorkloadPortRule) UnmarshalJSON(src []byte) error {
+func (v *NullableWorkloadPortMapping) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }

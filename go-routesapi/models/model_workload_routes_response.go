@@ -17,9 +17,9 @@ import (
 // checks if the WorkloadRoutesResponse type satisfies the MappedNullable interface at compile time
 var _ MappedNullable = &WorkloadRoutesResponse{}
 
-// WorkloadRoutesResponse a GetRoutesResponse gives the set of WorkloadRules which match a given GetWorkloadRoutes request
+// WorkloadRoutesResponse A workloadRoutesResponse gives the set of WorkloadRoutes which match a given GetWorkloadRoutes request
 type WorkloadRoutesResponse struct {
-	Rules []WorkloadRule `json:"rules,omitempty"`
+	Routes []WorkloadRoute `json:"routes,omitempty"`
 }
 
 // NewWorkloadRoutesResponse instantiates a new WorkloadRoutesResponse object
@@ -39,36 +39,36 @@ func NewWorkloadRoutesResponseWithDefaults() *WorkloadRoutesResponse {
 	return &this
 }
 
-// GetRules returns the Rules field value if set, zero value otherwise.
-func (o *WorkloadRoutesResponse) GetRules() []WorkloadRule {
-	if o == nil || IsNil(o.Rules) {
-		var ret []WorkloadRule
+// GetRoutes returns the Routes field value if set, zero value otherwise.
+func (o *WorkloadRoutesResponse) GetRoutes() []WorkloadRoute {
+	if o == nil || IsNil(o.Routes) {
+		var ret []WorkloadRoute
 		return ret
 	}
-	return o.Rules
+	return o.Routes
 }
 
-// GetRulesOk returns a tuple with the Rules field value if set, nil otherwise
+// GetRoutesOk returns a tuple with the Routes field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *WorkloadRoutesResponse) GetRulesOk() ([]WorkloadRule, bool) {
-	if o == nil || IsNil(o.Rules) {
+func (o *WorkloadRoutesResponse) GetRoutesOk() ([]WorkloadRoute, bool) {
+	if o == nil || IsNil(o.Routes) {
 		return nil, false
 	}
-	return o.Rules, true
+	return o.Routes, true
 }
 
-// HasRules returns a boolean if a field has been set.
-func (o *WorkloadRoutesResponse) HasRules() bool {
-	if o != nil && !IsNil(o.Rules) {
+// HasRoutes returns a boolean if a field has been set.
+func (o *WorkloadRoutesResponse) HasRoutes() bool {
+	if o != nil && !IsNil(o.Routes) {
 		return true
 	}
 
 	return false
 }
 
-// SetRules gets a reference to the given []WorkloadRule and assigns it to the Rules field.
-func (o *WorkloadRoutesResponse) SetRules(v []WorkloadRule) {
-	o.Rules = v
+// SetRoutes gets a reference to the given []WorkloadRoute and assigns it to the Routes field.
+func (o *WorkloadRoutesResponse) SetRoutes(v []WorkloadRoute) {
+	o.Routes = v
 }
 
 func (o WorkloadRoutesResponse) MarshalJSON() ([]byte, error) {
@@ -81,8 +81,8 @@ func (o WorkloadRoutesResponse) MarshalJSON() ([]byte, error) {
 
 func (o WorkloadRoutesResponse) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	if !IsNil(o.Rules) {
-		toSerialize["rules"] = o.Rules
+	if !IsNil(o.Routes) {
+		toSerialize["routes"] = o.Routes
 	}
 	return toSerialize, nil
 }

@@ -15,7 +15,7 @@ paths:
         - RoutesService
       summary: GetWorkloadRoutes
       description: |-
-        GetWorkloadRoutes returns a set of workload routing rules, each of which
+        GetWorkloadRoutes returns a set of workload routes, each of which
         indicates how to direct requests destined to a given baseline workload
         with a given routing key.
       operationId: GetWorkloadRoutes
@@ -42,10 +42,10 @@ paths:
             type: string
           description: The routing key associated with the request
         - in: query
-          name: sandboxID
+          name: destinationSandboxName
           schema:
             type: string
-          description: The routing key of the sandbox associated with the sandboxed destination workload
+          description: The sandbox associated with the destination sandboxed workloads
       responses:
         '200':
           description: ''
@@ -58,90 +58,87 @@ components:
     workloadRoutesResponse:
       type: object
       description: |-
-        a GetRoutesResponse gives the set of WorkloadRules which match a given
-        GetWorkloadRoutes request
+        A workloadRoutesResponse gives the set of WorkloadRoutes which match a
+        given GetWorkloadRoutes request
       properties:
-        rules:
+        routes:
           type: array
           items:
-            $ref: '#/components/schemas/workloadRule'
+            $ref: '#/components/schemas/workloadRoute'
 
-    workloadRule:
+    workloadRoute:
       type: object
       description: |-
-        A WorkloadRule r means: if a request 
-          1. has r.RoutingKey; and 
-          2. is originally destined to r.SandboxedWorkload.Baseline; and
-          3. is sent on a port indicated in one of r.PortRules pr
-          
-        then send it to the host and port indicated in any destination host and port
-        indicated in pr.destinations. Moreover, these destinations are all addresses
-        of r.SandboxedWorkload, any one of them can be used.
+        A WorkloadRoute defines for a given baseline and a routing key, the
+        different destinations (per port) implemented by one sandbox.
       properties:
         routingKey:
           type: string
           description: The routing key
-        sandboxedWorkload:
-          $ref: '#/components/schemas/sandboxedWorkload'
-          description: Sandboxed workload information
-        portRules:
-          description: Workload port rules
-          type: array
-          items:
-            $ref: '#/components/schemas/workloadPortRule'
-      required:
-        - routingKey
-        - sandboxedWorkload
-
-    sandboxedWorkload:
-      type: object
-      description: |-
-        A SandboxedWorkload represents a Fork or a Local workload
-        running in a sandbox.
-      properties:
-        sandboxID:
-          type: string
-          description: The routing key of a Sandbox
+          example: 4835rlwxwbwyl
         baseline:
           $ref: '#/components/schemas/baselineWorkload'
           description: The corresponding baseline workload
+        destinationSandbox:
+          $ref: '#/components/schemas/destinationSandbox'
+          description: The sandbox associated with the destination sandboxed workloads.
+        mappings:
+          description: A mapping from a port on the workload to a set of destinations.
+          type: array
+          items:
+            $ref: '#/components/schemas/workloadPortMapping'
       required:
-        - sandboxID
+        - routingKey
         - baseline
+        - destinationSandbox
+
+    destinationSandbox:
+      type: object
+      description: |-
+        A DestinationSandbox represents a sandbox that implements routes
+      properties:
+        name:
+          type: string
+          description: The sandbox name
+          example: sandbox-better-route
+      required:
+        - name
 
     baselineWorkload:
       type: object
       description: |-
-        A BaselineWorkload identifies a given baseline workload. In the context
-        of a WorkloadRoutesRequest, all the fields are optional. In the context
-        of a response from the server, all the fields are filled in.
+        A BaselineWorkload identifies a given baseline workload.
       properties:
         kind:
           type: string
           description: Baseline workload kind (e.g. Deployment, ArgoRollout)
+          example: Deployment
         namespace:
           type: string
           description: Baseline workload namespace
+          example: hotrod
         name:
           type: string
           description: Baseline workload name
+          example: route
       required:
         - kind
         - namespace
         - name
 
-    workloadPortRule:
+    workloadPortMapping:
       type: object
       description: |-
-        WorkloadPortRule provides a mapping from a port on the workload to a set
-        of destinations. The workload port is the same as the target port of a
-        kubernetes service matching the workload. Each destination in the
+        A WorkloadPortMapping provides a mapping from a port on the workload to
+        a set of destinations. The workload port is the same as the target port
+        of a kubernetes service matching the workload. Each destination in the
         response corresponds to a sandbox service matching the sandboxed
         workload.  As a result, any of the destinations can be used.
       properties:
         workloadPort:
           type: integer
           description: Workload port
+          example: 8083
         destinations:
           type: array
           items:
@@ -157,9 +154,11 @@ components:
         host:
           type: string
           description: Location host
+          example: sandbox-better-route-dep-route-95f507ad.hotrod.svc
         port:
           type: integer
           description: Location port
+          example: 8083
       required:
         - host
         - port
