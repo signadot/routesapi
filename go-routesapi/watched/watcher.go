@@ -10,7 +10,7 @@ import (
 	"google.golang.org/grpc"
 )
 
-// watcher watches (with retries on error) a set of WorkloadRules.
+// watcher watches (with retries on error) a set of WorkloadRoutes.
 type watcher struct {
 	*Config
 
@@ -24,13 +24,13 @@ type watcher struct {
 	underWatch routesapi.Routes_WatchWorkloadRoutesClient
 
 	// pending requeusts
-	pending       *queue.Queue[*routesapi.WorkloadRuleOp]
+	pending       *queue.Queue[*routesapi.WorkloadRouteOp]
 	pendingSynced bool
 }
 
-func (w *watcher) Recv() (*routesapi.WorkloadRuleOp, error) {
+func (w *watcher) Recv() (*routesapi.WorkloadRouteOp, error) {
 	var (
-		op  *routesapi.WorkloadRuleOp
+		op  *routesapi.WorkloadRouteOp
 		err error
 	)
 
@@ -79,7 +79,7 @@ func (w *watcher) slurp() error {
 	if err != nil {
 		return err
 	}
-	d := map[key]*routesapi.WorkloadRule{}
+	d := map[key]*routesapi.WorkloadRoute{}
 	for {
 		op, err := uw.Recv()
 		if err != nil {
@@ -87,7 +87,7 @@ func (w *watcher) slurp() error {
 		}
 		switch op.Op {
 		case routesapi.WatchOp_ADD:
-			k, v := kv(op.Rule)
+			k, v := kv(op.Route)
 			d[*k] = v
 		case routesapi.WatchOp_SYNCED:
 			w.Log.Debug("synced")
@@ -99,16 +99,16 @@ func (w *watcher) slurp() error {
 	}
 }
 
-func (w *watcher) update(d map[key]*routesapi.WorkloadRule, uw routesapi.Routes_WatchWorkloadRoutesClient) {
+func (w *watcher) update(d map[key]*routesapi.WorkloadRoute, uw routesapi.Routes_WatchWorkloadRoutesClient) {
 	for k, cur := range d {
 		_, ok := w.watched.D[k]
 		pendingOp := routesapi.WatchOp_ADD
 		if ok {
 			pendingOp = routesapi.WatchOp_REPLACE
 		}
-		w.pending.Push(&routesapi.WorkloadRuleOp{
-			Op:   pendingOp,
-			Rule: cur,
+		w.pending.Push(&routesapi.WorkloadRouteOp{
+			Op:    pendingOp,
+			Route: cur,
 		})
 	}
 	for k, old := range w.watched.D {
@@ -116,14 +116,14 @@ func (w *watcher) update(d map[key]*routesapi.WorkloadRule, uw routesapi.Routes_
 		if present {
 			continue
 		}
-		w.pending.Push(&routesapi.WorkloadRuleOp{
-			Op:   routesapi.WatchOp_REMOVE,
-			Rule: old,
+		w.pending.Push(&routesapi.WorkloadRouteOp{
+			Op:    routesapi.WatchOp_REMOVE,
+			Route: old,
 		})
 	}
 	if !w.pendingSynced {
 		w.Log.Debug("adding pending sync")
-		w.pending.Push(&routesapi.WorkloadRuleOp{
+		w.pending.Push(&routesapi.WorkloadRouteOp{
 			Op: routesapi.WatchOp_SYNCED,
 		})
 		w.pendingSynced = true

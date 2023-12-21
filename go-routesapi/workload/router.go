@@ -39,8 +39,8 @@ func (r *router) GetTarget(containerPort int32, rks ...string) string {
 		if rr == nil {
 			continue
 		}
-		for i := range rr.PortRules {
-			pr := rr.PortRules[i]
+		for i := range rr.Mappings {
+			pr := rr.Mappings[i]
 			if int32(pr.WorkloadPort) != containerPort {
 				continue
 			}

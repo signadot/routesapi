@@ -9,8 +9,8 @@ import (
 
 // BaselineWatched wraps [watched.Watched] with a [routesapi.BaselineWorkload].
 type BaselineWatched interface {
-	Get(rk string) *routesapi.WorkloadRule
-	RoutesTo(rk string, sbID string) bool
+	Get(rk string) *routesapi.WorkloadRoute
+	RoutesTo(rk string, sbName string) bool
 }
 
 type baselineWatched struct {
@@ -32,10 +32,10 @@ func NewBaselineWatched(ctx context.Context, cfg *Config, b *routesapi.BaselineW
 	}, nil
 }
 
-func (bw *baselineWatched) Get(rk string) *routesapi.WorkloadRule {
+func (bw *baselineWatched) Get(rk string) *routesapi.WorkloadRoute {
 	return bw.watched.Get(bw.baseline, rk)
 }
 
-func (bw *baselineWatched) RoutesTo(rk string, sbID string) bool {
-	return bw.watched.RoutesTo(bw.baseline, rk, sbID)
+func (bw *baselineWatched) RoutesTo(rk string, sbName string) bool {
+	return bw.watched.RoutesTo(bw.baseline, rk, sbName)
 }
