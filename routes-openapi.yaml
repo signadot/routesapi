@@ -22,11 +22,15 @@ paths:
         In the response, for each returned `baseline` workload, the 
         `destinationSandbox` represents the override destination to which 
         traffic will be routed to instead in the presence of the routing key 
-        (https://www.signadot.com/docs/context-propagation).
+        (https://www.signadot.com/docs/context-propagation). Sandboxed Message 
+        queue consumers may use this field to discover if a message is intended 
+        for their consumption.
 
-        The mappings map each port of the baseline workload with corresponding 
-        TCP addresses belonging to the `destinationSandbox` where traffic is 
-        routed instead.
+        `mappings` provide the association between baseline workload ports and 
+        corresponding TCP addresses belonging to the `destinationSandbox`. The 
+        `mappings` are used by the DevMesh sidecar (https://www.signadot.com/docs/request-routing/devmesh) to implement "Destination Routing", and 
+        may not be relevant to clients unless they are implementing request 
+        routing in the application layer.
       operationId: GetWorkloadRoutes
       parameters:
         - in: query
