@@ -28,9 +28,8 @@ paths:
 
         `mappings` provide the association between baseline workload ports and 
         corresponding TCP addresses belonging to the `destinationSandbox`. The 
-        `mappings` are used by the DevMesh sidecar (https://www.signadot.com/docs/request-routing/devmesh) to implement "Destination Routing", and 
-        may not be relevant to clients unless they are implementing request 
-        routing in the application layer.
+        `mappings` are used by the DevMesh sidecar (https://www.signadot.com/docs/request-routing/devmesh) 
+        to implement "Destination Routing", and may not be relevant to clients unless they are implementing request routing in the application layer.
       operationId: GetWorkloadRoutes
       parameters:
         - in: query
