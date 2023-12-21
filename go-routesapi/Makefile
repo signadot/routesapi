@@ -6,7 +6,6 @@ generate-proto:
 		--go-grpc_out=. --go-grpc_opt=paths=source_relative \
 		-I .. \
     	../routes.proto
-	perl -i -pe  s/SandboxId/SandboxID/g *.go
 
 generate-openapi-models:
 	cp ../routes-openapi.yaml .

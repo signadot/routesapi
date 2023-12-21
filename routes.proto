@@ -5,15 +5,31 @@ option go_package = "github.com/signadot/routesapi/routesapi-go;routesapi";
 package routes;
 
 
+// The Routes API provides access to in-cluster routing configuration set up by
+// the Signadot Operator.
+
 service Routes {
-  // GetWorkloadRoutes returns a set of workload routes, each of which indicates
-  // how to direct requests destined to a given baseline workload with a given
-  // routing key.
+  // GetWorkloadRoutes returns a destinationSandbox and mappings for each
+  // combination of baseline workload and routing key. Each request query
+  // parameter represents a different filter on the set of routes returned.
+  //
+  // In the response, for each returned `baseline` workload, the
+  // `destinationSandbox` represents the override destination to which traffic
+  // will be routed to instead in the presence of the routing key
+  // (https://www.signadot.com/docs/context-propagation). Message queue
+  // consumers may use this field to discover if a message is intended for their
+  // consumption.
+  //
+  // `mappings` provide the association between baseline workload ports and
+  // corresponding TCP addresses belonging to the `destinationSandbox`. The
+  // `mappings` are used by the DevMesh sidecar
+  // (https://www.signadot.com/docs/request-routing/devmesh) to implement
+  // "Destination Routing", and may not be relevant to clients unless they are
+  // implementing request routing in the application layer.
   rpc GetWorkloadRoutes(WorkloadRoutesRequest) returns (GetWorkloadRoutesResponse) {}
 
-  // WatchWorkloadRoutes provides a stream of diff operations which operate on a
-  // set of workload routes to maintain the routes in near real time with
-  // in-cluster Sandboxes and RouteGroups.
+  // WatchWorkloadRoutes is a reactive version of GetWorkloadRoutes that
+  // provides a stream of WorkloadRoute modifications in near real-time.
   rpc WatchWorkloadRoutes(WorkloadRoutesRequest) returns (stream WorkloadRouteOp) {}
 }
 
@@ -21,8 +37,10 @@ service Routes {
 // Common
 // ----------------------------------------------------------------------------
 
-// A WorkloadRoute defines for a given baseline and a routing key, the different
-// destinations (per port) implemented by one sandbox.
+// A WorkloadRoute defines for a given baseline and a routing key, a single
+// `destinationSandbox` and `mappings`. The mappings map each port of the
+// baseline workload with corresponding TCP addresses belonging to the
+// `destinationSandbox` where traffic is routed instead.
 message WorkloadRoute {
   string routing_key = 1;
   // baseline indicates the corresponding baseline workload.
@@ -35,7 +53,8 @@ message WorkloadRoute {
   repeated WorkloadPortMapping mappings = 4;
 }
 
-// A DestinationSandbox represents a sandbox that implements routes
+// A DestinationSandbox represents a sandbox that will receive traffic intended
+// for a baseline workload in the presence of a routing key.
 message DestinationSandbox {
   // Sandbox name
   string name = 1;
@@ -50,11 +69,10 @@ message BaselineWorkload {
   string name = 3;
 }
 
-// WorkloadPortMapping provides a mapping from a port on the workload to a set
-// of destinations. The workload port is the same as the target port of a
-// kubernetes service matching the workload. Each destination in the response
-// corresponds to a sandbox service matching the sandboxed workload.  As a
-// result, any of the destinations can be used.
+// A WorkloadPortMapping provides a mapping from a port on the workload to a set
+// of destinations. Each destination in the response corresponds to a sandbox
+// service matching the sandboxed workload. As a result, any of the destinations
+// can be used.
 message WorkloadPortMapping {
   uint32 workload_port = 1;
   repeated Location destinations = 2;

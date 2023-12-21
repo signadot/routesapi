@@ -9,17 +9,18 @@ import (
 
 	"github.com/signadot/routesapi/go-routesapi"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
 var (
-	addr       string
-	namespace  string
-	name       string
-	kind       string
-	routingKey string
-	sandboxID  string
-	watch      bool
+	addr        string
+	namespace   string
+	name        string
+	kind        string
+	routingKey  string
+	sandboxName string
+	watch       bool
 )
 
 var (
@@ -36,10 +37,10 @@ func main() {
 	flag.StringVar(&name, "name", "", "routes baseline workload name")
 	flag.StringVar(&kind, "kind", "", "routes baseline workload kind")
 	flag.StringVar(&routingKey, "routing-key", "", "routes routing key")
-	flag.StringVar(&sandboxID, "sandbox-id", "", "routes routing to sandbox with given id")
+	flag.StringVar(&sandboxName, "sandbox-name", "", "routes routing to sandbox with given name")
 	flag.BoolVar(&watch, "watch", false, "whether to watch")
 	flag.Parse()
-	conn, err := grpc.Dial(addr, grpc.WithInsecure())
+	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -52,7 +53,9 @@ func main() {
 			Kind:      kind,
 		},
 		RoutingKey: routingKey,
-		SandboxID:  sandboxID,
+		DestinationSandbox: &routesapi.DestinationSandbox{
+			Name: sandboxName,
+		},
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()

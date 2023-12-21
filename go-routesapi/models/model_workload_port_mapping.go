@@ -1,7 +1,7 @@
 /*
 Signadot Routes API
 
-The Signadot Routes API provides access to routing rules pertinent to Signadot Sandboxes on a cluster with the Signadot Operator (>= v0.14.2) installed. 
+The Routes API provides access to in-cluster routing  configuration set up by the Signadot Operator. 
 
 API version: 1.0.0
 */
@@ -18,7 +18,7 @@ import (
 // checks if the WorkloadPortMapping type satisfies the MappedNullable interface at compile time
 var _ MappedNullable = &WorkloadPortMapping{}
 
-// WorkloadPortMapping A WorkloadPortMapping provides a mapping from a port on the workload to a set of destinations. The workload port is the same as the target port of a kubernetes service matching the workload. Each destination in the response corresponds to a sandbox service matching the sandboxed workload.  As a result, any of the destinations can be used.
+// WorkloadPortMapping A WorkloadPortMapping provides a mapping from a port on the workload to a set of destinations. Each destination in the response corresponds to a sandbox service matching the sandboxed workload. As a result, any of the destinations can be used.
 type WorkloadPortMapping struct {
 	// Workload port
 	WorkloadPort int32 `json:"workloadPort"`

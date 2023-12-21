@@ -1,7 +1,7 @@
 /*
 Signadot Routes API
 
-The Signadot Routes API provides access to routing rules pertinent to Signadot Sandboxes on a cluster with the Signadot Operator (>= v0.14.2) installed. 
+The Routes API provides access to in-cluster routing  configuration set up by the Signadot Operator. 
 
 API version: 1.0.0
 */
@@ -18,7 +18,7 @@ import (
 // checks if the DestinationSandbox type satisfies the MappedNullable interface at compile time
 var _ MappedNullable = &DestinationSandbox{}
 
-// DestinationSandbox A DestinationSandbox represents a sandbox that implements routes
+// DestinationSandbox A DestinationSandbox represents a sandbox that will receive traffic intended for a baseline workload in the presence of a routing key.
 type DestinationSandbox struct {
 	// The sandbox name
 	Name string `json:"name"`

@@ -1,7 +1,7 @@
 /*
 Signadot Routes API
 
-The Signadot Routes API provides access to routing rules pertinent to Signadot Sandboxes on a cluster with the Signadot Operator (>= v0.14.2) installed. 
+The Routes API provides access to in-cluster routing  configuration set up by the Signadot Operator. 
 
 API version: 1.0.0
 */

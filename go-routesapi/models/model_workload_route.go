@@ -1,7 +1,7 @@
 /*
 Signadot Routes API
 
-The Signadot Routes API provides access to routing rules pertinent to Signadot Sandboxes on a cluster with the Signadot Operator (>= v0.14.2) installed. 
+The Routes API provides access to in-cluster routing  configuration set up by the Signadot Operator. 
 
 API version: 1.0.0
 */
@@ -18,7 +18,7 @@ import (
 // checks if the WorkloadRoute type satisfies the MappedNullable interface at compile time
 var _ MappedNullable = &WorkloadRoute{}
 
-// WorkloadRoute A WorkloadRoute defines for a given baseline and a routing key, the different destinations (per port) implemented by one sandbox.
+// WorkloadRoute A WorkloadRoute defines for a given baseline and a routing key, a single `destinationSandbox` and `mappings`. The mappings map each port of the baseline workload with corresponding TCP addresses belonging to the `destinationSandbox` where traffic is routed instead.
 type WorkloadRoute struct {
 	// The routing key
 	RoutingKey string `json:"routingKey"`

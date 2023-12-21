@@ -76,8 +76,10 @@ func (WatchOp) EnumDescriptor() ([]byte, []int) {
 	return file_routes_proto_rawDescGZIP(), []int{0}
 }
 
-// A WorkloadRoute defines for a given baseline and a routing key, the different
-// destinations (per port) implemented by one sandbox.
+// A WorkloadRoute defines for a given baseline and a routing key, a single
+// `destinationSandbox` and `mappings`. The mappings map each port of the
+// baseline workload with corresponding TCP addresses belonging to the
+// `destinationSandbox` where traffic is routed instead.
 type WorkloadRoute struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -154,7 +156,8 @@ func (x *WorkloadRoute) GetMappings() []*WorkloadPortMapping {
 	return nil
 }
 
-// A DestinationSandbox represents a sandbox that implements routes
+// A DestinationSandbox represents a sandbox that will receive traffic intended
+// for a baseline workload in the presence of a routing key.
 type DestinationSandbox struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache
@@ -269,11 +272,10 @@ func (x *BaselineWorkload) GetName() string {
 	return ""
 }
 
-// WorkloadPortMapping provides a mapping from a port on the workload to a set
-// of destinations. The workload port is the same as the target port of a
-// kubernetes service matching the workload. Each destination in the response
-// corresponds to a sandbox service matching the sandboxed workload.  As a
-// result, any of the destinations can be used.
+// A WorkloadPortMapping provides a mapping from a port on the workload to a set
+// of destinations. Each destination in the response corresponds to a sandbox
+// service matching the sandboxed workload. As a result, any of the destinations
+// can be used.
 type WorkloadPortMapping struct {
 	state         protoimpl.MessageState
 	sizeCache     protoimpl.SizeCache

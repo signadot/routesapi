@@ -22,13 +22,26 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RoutesClient interface {
-	// GetWorkloadRoutes returns a set of workload routes, each of which indicates
-	// how to direct requests destined to a given baseline workload with a given
-	// routing key.
+	// GetWorkloadRoutes returns a destinationSandbox and mappings for each
+	// combination of baseline workload and routing key. Each request query
+	// parameter represents a different filter on the set of routes returned.
+	//
+	// In the response, for each returned `baseline` workload, the
+	// `destinationSandbox` represents the override destination to which traffic
+	// will be routed to instead in the presence of the routing key
+	// (https://www.signadot.com/docs/context-propagation). Message queue
+	// consumers may use this field to discover if a message is intended for their
+	// consumption.
+	//
+	// `mappings` provide the association between baseline workload ports and
+	// corresponding TCP addresses belonging to the `destinationSandbox`. The
+	// `mappings` are used by the DevMesh sidecar
+	// (https://www.signadot.com/docs/request-routing/devmesh) to implement
+	// "Destination Routing", and may not be relevant to clients unless they are
+	// implementing request routing in the application layer.
 	GetWorkloadRoutes(ctx context.Context, in *WorkloadRoutesRequest, opts ...grpc.CallOption) (*GetWorkloadRoutesResponse, error)
-	// WatchWorkloadRoutes provides a stream of diff operations which operate on a
-	// set of workload routes to maintain the routes in near real time with
-	// in-cluster Sandboxes and RouteGroups.
+	// WatchWorkloadRoutes is a reactive version of GetWorkloadRoutes that
+	// provides a stream of WorkloadRoute modifications in near real-time.
 	WatchWorkloadRoutes(ctx context.Context, in *WorkloadRoutesRequest, opts ...grpc.CallOption) (Routes_WatchWorkloadRoutesClient, error)
 }
 
@@ -85,13 +98,26 @@ func (x *routesWatchWorkloadRoutesClient) Recv() (*WorkloadRouteOp, error) {
 // All implementations must embed UnimplementedRoutesServer
 // for forward compatibility
 type RoutesServer interface {
-	// GetWorkloadRoutes returns a set of workload routes, each of which indicates
-	// how to direct requests destined to a given baseline workload with a given
-	// routing key.
+	// GetWorkloadRoutes returns a destinationSandbox and mappings for each
+	// combination of baseline workload and routing key. Each request query
+	// parameter represents a different filter on the set of routes returned.
+	//
+	// In the response, for each returned `baseline` workload, the
+	// `destinationSandbox` represents the override destination to which traffic
+	// will be routed to instead in the presence of the routing key
+	// (https://www.signadot.com/docs/context-propagation). Message queue
+	// consumers may use this field to discover if a message is intended for their
+	// consumption.
+	//
+	// `mappings` provide the association between baseline workload ports and
+	// corresponding TCP addresses belonging to the `destinationSandbox`. The
+	// `mappings` are used by the DevMesh sidecar
+	// (https://www.signadot.com/docs/request-routing/devmesh) to implement
+	// "Destination Routing", and may not be relevant to clients unless they are
+	// implementing request routing in the application layer.
 	GetWorkloadRoutes(context.Context, *WorkloadRoutesRequest) (*GetWorkloadRoutesResponse, error)
-	// WatchWorkloadRoutes provides a stream of diff operations which operate on a
-	// set of workload routes to maintain the routes in near real time with
-	// in-cluster Sandboxes and RouteGroups.
+	// WatchWorkloadRoutes is a reactive version of GetWorkloadRoutes that
+	// provides a stream of WorkloadRoute modifications in near real-time.
 	WatchWorkloadRoutes(*WorkloadRoutesRequest, Routes_WatchWorkloadRoutesServer) error
 	mustEmbedUnimplementedRoutesServer()
 }
