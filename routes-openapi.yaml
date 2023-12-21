@@ -3,9 +3,8 @@ info:
   title: Signadot Routes API
   version: 1.0.0
   description: >
-    The Signadot Routes API provides access to routing rules pertinent to
-    Signadot Sandboxes on a cluster with the Signadot Operator (>= v0.14.2)
-    installed.
+    The Routes API provides access to in-cluster routing 
+    configuration set up by the Signadot Operator.
 servers:
   - url: http://routeserver.signadot.svc:7778
 paths:
@@ -15,9 +14,22 @@ paths:
         - RoutesService
       summary: GetWorkloadRoutes
       description: |-
-        GetWorkloadRoutes returns a set of workload routes, each of which
-        indicates how to direct requests destined to a given baseline workload
-        with a given routing key.
+        GetWorkloadRoutes returns a destinationSandbox and mappings for 
+        each combination of baseline workload and routing key. Each request 
+        query parameter represents a different filter on the set of routes 
+        returned.
+        
+        In the response, for each returned `baseline` workload, the 
+        `destinationSandbox` represents the override destination to which 
+        traffic will be routed to instead in the presence of the routing key 
+        (https://www.signadot.com/docs/context-propagation). Message 
+        queue consumers may use this field to discover if a message is intended 
+        for their consumption.
+
+        `mappings` provide the association between baseline workload ports and 
+        corresponding TCP addresses belonging to the `destinationSandbox`. The 
+        `mappings` are used by the DevMesh sidecar (https://www.signadot.com/docs/request-routing/devmesh) 
+        to implement "Destination Routing", and may not be relevant to clients unless they are implementing request routing in the application layer.
       operationId: GetWorkloadRoutes
       parameters:
         - in: query
@@ -69,8 +81,10 @@ components:
     workloadRoute:
       type: object
       description: |-
-        A WorkloadRoute defines for a given baseline and a routing key, the
-        different destinations (per port) implemented by one sandbox.
+        A WorkloadRoute defines for a given baseline and a routing key, a 
+        single `destinationSandbox` and `mappings`. The mappings map each port 
+        of the baseline workload with corresponding TCP addresses belonging to 
+        the `destinationSandbox` where traffic is routed instead.
       properties:
         routingKey:
           type: string
@@ -95,7 +109,8 @@ components:
     destinationSandbox:
       type: object
       description: |-
-        A DestinationSandbox represents a sandbox that implements routes
+        A DestinationSandbox represents a sandbox that will receive traffic
+        intended for a baseline workload in the presence of a routing key.
       properties:
         name:
           type: string
@@ -130,10 +145,9 @@ components:
       type: object
       description: |-
         A WorkloadPortMapping provides a mapping from a port on the workload to
-        a set of destinations. The workload port is the same as the target port
-        of a kubernetes service matching the workload. Each destination in the
+        a set of destinations. Each destination in the
         response corresponds to a sandbox service matching the sandboxed
-        workload.  As a result, any of the destinations can be used.
+        workload. As a result, any of the destinations can be used.
       properties:
         workloadPort:
           type: integer
