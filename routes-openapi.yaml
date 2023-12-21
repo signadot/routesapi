@@ -22,7 +22,7 @@ paths:
         In the response, for each returned `baseline` workload, the 
         `destinationSandbox` represents the override destination to which 
         traffic will be routed to instead in the presence of the routing key 
-        (https://www.signadot.com/docs/context-propagation). Sandboxed Message 
+        (https://www.signadot.com/docs/context-propagation). Message 
         queue consumers may use this field to discover if a message is intended 
         for their consumption.
 
