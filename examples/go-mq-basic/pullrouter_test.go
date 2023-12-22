@@ -7,8 +7,6 @@ import (
 	"time"
 
 	"log/slog"
-
-	"github.com/signadot/routesapi/go-routesapi"
 )
 
 func TestPullMQRouter(t *testing.T) {
@@ -16,24 +14,32 @@ func TestPullMQRouter(t *testing.T) {
 		t.Skip()
 		return
 	}
+
+	routeServerAddr := os.Getenv("TEST_ROUTE_SERVER_ADDR")
+	if routeServerAddr == "" {
+		// use default location
+		routeServerAddr = "routeserver.signadot.svc:7778"
+	}
+
 	cfg := &Config{
-		RouteServerAddr: os.Getenv("TEST_ROUTE_SERVER_ADDR"),
+		Log: slog.New(
+			slog.NewTextHandler(os.Stdout,
+				&slog.HandlerOptions{
+					Level: slog.LevelDebug,
+				}),
+		),
+		RouteServerAddr: routeServerAddr,
 		PullInterval:    10 * time.Second,
-		Log: slog.New(slog.NewTextHandler(os.Stdout,
-			&slog.HandlerOptions{
-				Level: slog.LevelDebug,
-			})),
+		Baseline: &BaselineWorkload{
+			Kind:      "Deployment",
+			Namespace: "hotrod",
+			Name:      "route",
+		},
+		SandboxName: os.Getenv("SIGNADOT_SANDBOX_NAME"),
 	}
 	ctx := context.Background()
 
-	sandboxName := os.Getenv("SIGNADOT_SANDBOX_NAME")
-	baseline := &routesapi.BaselineWorkload{
-		Kind:      "Deployment",
-		Namespace: "hotrod",
-		Name:      "route",
-	}
-
-	mq, err := NewPullMQRouter(ctx, cfg, baseline, sandboxName)
+	mq, err := NewPullMQRouter(ctx, cfg)
 	if err != nil {
 		t.Error(err)
 		return
