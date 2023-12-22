@@ -1,0 +1,179 @@
+openapi: 3.0.1
+info:
+  title: Signadot Routes API
+  version: 1.0.0
+  description: >
+    The Routes API provides access to in-cluster routing 
+    configuration set up by the Signadot Operator.
+servers:
+  - url: http://routeserver.signadot.svc:7778
+paths:
+  /api/v1/workloads/routes:
+    get:
+      tags:
+        - RoutesService
+      summary: GetWorkloadRoutes
+      description: |-
+        GetWorkloadRoutes returns a destinationSandbox and mappings for each
+        combination of baseline workload and routing key. Each request query
+        parameter represents a different filter on the set of routes returned.
+        
+        In the response, for each returned `baseline` workload, the
+        `destinationSandbox` represents the override destination to which
+        traffic will be routed to instead in the presence of the routing key
+        (https://www.signadot.com/docs/context-propagation). Message queue
+        consumers may use this field to discover if a message is intended for
+        their consumption.
+
+        `mappings` provide the association between baseline workload ports and
+        corresponding TCP addresses belonging to the `destinationSandbox`. The
+        `mappings` are used by the DevMesh sidecar
+        (https://www.signadot.com/docs/request-routing/devmesh) to implement
+        "Destination Routing", and may not be relevant to clients unless they
+        are implementing request routing in the application layer.
+      operationId: GetWorkloadRoutes
+      parameters:
+        - in: query
+          name: baselineKind
+          schema:
+            type: string
+          description: Baseline workload kind (e.g. Deployment, ArgoRollout)
+          example: Deployment
+        - in: query
+          name: baselineNamespace
+          schema:
+            type: string
+          description: Baseline workload namespace
+        - in: query
+          name: baselineName
+          schema:
+            type: string
+          description: Baseline workload name
+        - in: query
+          name: routingKey
+          schema:
+            type: string
+          description: The routing key associated with the request
+        - in: query
+          name: destinationSandboxName
+          schema:
+            type: string
+          description: The sandbox associated with the destination sandboxed workloads
+      responses:
+        '200':
+          description: ''
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/workloadRoutesResponse'
+components:
+  schemas:
+    workloadRoutesResponse:
+      type: object
+      description: |-
+        A workloadRoutesResponse gives the set of WorkloadRoutes which match a
+        given GetWorkloadRoutes request
+      properties:
+        routes:
+          type: array
+          items:
+            $ref: '#/components/schemas/workloadRoute'
+
+    workloadRoute:
+      type: object
+      description: |-
+        A WorkloadRoute defines for a given baseline and a routing key, a single
+        `destinationSandbox` and `mappings`. The mappings map each port of the
+        baseline workload with corresponding TCP addresses belonging to the
+        `destinationSandbox` where traffic is routed instead.
+      properties:
+        routingKey:
+          type: string
+          description: The routing key
+          example: 4835rlwxwbwyl
+        baseline:
+          $ref: '#/components/schemas/baselineWorkload'
+          description: The corresponding baseline workload
+        destinationSandbox:
+          $ref: '#/components/schemas/destinationSandbox'
+          description: The sandbox associated with the destination sandboxed workloads.
+        mappings:
+          description: A mapping from a port on the workload to a set of destinations.
+          type: array
+          items:
+            $ref: '#/components/schemas/workloadPortMapping'
+      required:
+        - routingKey
+        - baseline
+        - destinationSandbox
+
+    destinationSandbox:
+      type: object
+      description: |-
+        A DestinationSandbox represents a sandbox that will receive traffic
+        intended for a baseline workload in the presence of a routing key.
+      properties:
+        name:
+          type: string
+          description: The sandbox name
+          example: sandbox-better-route
+      required:
+        - name
+
+    baselineWorkload:
+      type: object
+      description: |-
+        A BaselineWorkload identifies a given baseline workload.
+      properties:
+        kind:
+          type: string
+          description: Baseline workload kind (e.g. Deployment, ArgoRollout)
+          example: Deployment
+        namespace:
+          type: string
+          description: Baseline workload namespace
+          example: hotrod
+        name:
+          type: string
+          description: Baseline workload name
+          example: route
+      required:
+        - kind
+        - namespace
+        - name
+
+    workloadPortMapping:
+      type: object
+      description: |-
+        A WorkloadPortMapping provides a mapping from a port on the workload to
+        a set of destinations. Each destination in the response corresponds to a
+        sandbox service matching the sandboxed workload. As a result, any of the
+        destinations can be used.
+      properties:
+        workloadPort:
+          type: integer
+          description: Workload port
+          example: 8083
+        destinations:
+          type: array
+          items:
+            $ref: '#/components/schemas/location'
+      required:
+        - workloadPort
+
+    location:
+      type: object
+      description: |-
+        A TCP address as a host, port pair.
+      properties:
+        host:
+          type: string
+          description: Location host
+          example: sandbox-better-route-dep-route-95f507ad.hotrod.svc
+        port:
+          type: integer
+          description: Location port
+          example: 8083
+      required:
+        - host
+        - port

@@ -4,114 +4,79 @@ option go_package = "github.com/signadot/routesapi/routesapi-go;routesapi";
 
 package routes;
 
+
+// The Routes API provides access to in-cluster routing configuration set up by
+// the Signadot Operator.
+
 service Routes {
-  // GetWorkloadRoutes returns a set of workload routing rules, each
-  // of which indicates how to direct requests destined to a given
-  // baseline workload with a given routing key.
-  rpc GetWorkloadRoutes(WorkloadRoutesRequest) returns (GetRoutesResponse) {}
+  // GetWorkloadRoutes returns a destinationSandbox and mappings for each
+  // combination of baseline workload and routing key. Each request query
+  // parameter represents a different filter on the set of routes returned.
+  //
+  // In the response, for each returned `baseline` workload, the
+  // `destinationSandbox` represents the override destination to which traffic
+  // will be routed to instead in the presence of the routing key
+  // (https://www.signadot.com/docs/context-propagation). Message queue
+  // consumers may use this field to discover if a message is intended for their
+  // consumption.
+  //
+  // `mappings` provide the association between baseline workload ports and
+  // corresponding TCP addresses belonging to the `destinationSandbox`. The
+  // `mappings` are used by the DevMesh sidecar
+  // (https://www.signadot.com/docs/request-routing/devmesh) to implement
+  // "Destination Routing", and may not be relevant to clients unless they are
+  // implementing request routing in the application layer.
+  rpc GetWorkloadRoutes(WorkloadRoutesRequest) returns (GetWorkloadRoutesResponse) {}
 
-  // WatchWorkloadRoutes provides a stream of diff operations which operate
-  // on a set of workload routing rules to maintain the routing rules
-  // in near real time with in-cluster Sandboxes and RouteGroups.
-  rpc WatchWorkloadRoutes(WorkloadRoutesRequest) returns (stream WorkloadRuleOp) {}
-}
-
-// WorkloadRoutesRequest is a request for a set of WorkloadRules,
-// which give information about how to route requests when they are intercepted
-// at a given workload.  Each field is optional and constrains the the set
-// of WorkloadRules returned accordingly.
-message WorkloadRoutesRequest {
-
-  // baseline_workload specifies the kind, namespace, and name of the baseline
-  // workload to which requests are directed.  Each field is optional.
-  BaselineWorkload baseline_workload = 1;
-
-  // routing_key specifies the routing key associated with the request.
-  string routing_key = 2;
-
-  // sandbox_id specifies the routing key of the sandbox associated 
-  // with the sandboxed destination workload.
-  string sandbox_id = 3;
-}
-
-// a GetRoutesResponse gives the set of WorkloadRules which match
-// a given WorkloadRoutesRequest.
-message GetRoutesResponse {
-  repeated WorkloadRule rules = 1;
-}
-
-
-
-// WatchRoutes
-// ----------------------------------------------------------------------------
-enum WatchOp {
-  ADD = 0;
-  REMOVE = 1;
-  REPLACE = 2;
-  // in any WatchWorkloadRoutes rpc call, the returned stream will send 
-  // at most 1 SYNCED WatchOp, indicating the client has all the information
-  // about Sandboxes and RouteGroups available in the cluster.  Prior
-  // to sending a SYNCED WatchOp, all WatchOps are ADDs.
-  SYNCED = 3;
-}
-
-// WorkloadRuleOp describes a diff operation against a set of workload
-// routing rules: adding, removing, and replacing WorkloadRules are 
-// possible.  Additionally, there is a SYNCED operation to indicate
-// when the client has received all relevant WorkloadRules.
-message WorkloadRuleOp {
-  WatchOp op = 1;
-  WorkloadRule rule = 2;
+  // WatchWorkloadRoutes is a reactive version of GetWorkloadRoutes that
+  // provides a stream of WorkloadRoute modifications in near real-time.
+  rpc WatchWorkloadRoutes(WorkloadRoutesRequest) returns (stream WorkloadRouteOp) {}
 }
 
 
 // Common
 // ----------------------------------------------------------------------------
 
-// A WorkloadRule r means "if a request 
-//  1. has r.RoutingKey; and 
-//  2. is originally destined to r.SandboxedWorkload.Baseline; and
-//  3. is sent on a port indicated in one of r.PortRules `pr`
-// then send it to the host and port indicated in any destination
-// host and port indicated in pr.destinations.  Moreover, these destinations
-// are all addresses of r.SandboxedWorkload, any one of them can be used.
-message WorkloadRule {
+// A WorkloadRoute defines for a given baseline and a routing key, a single
+// `destinationSandbox` and `mappings`. The mappings map each port of the
+// baseline workload with corresponding TCP addresses belonging to the
+// `destinationSandbox` where traffic is routed instead.
+message WorkloadRoute {
   string routing_key = 1;
-  SandboxedWorkload sandboxed_workload = 2;
-  repeated WorkloadPortRule port_rules = 3;
-}
-
-// A SandboxedWorkload indicates a sandboxed Fork or Local
-// running in a sandbox.
-message SandboxedWorkload {
-
-  // SandboxID indicates the routing key of a Sandbox.
-  string sandbox_id = 1;
-
-  // Baseline indicates the corresponding baseline workload.
+  // baseline indicates the corresponding baseline workload.
   BaselineWorkload baseline = 2;
+  // destination_sandbox indicates the sandbox associated with the destination
+  // sandboxed workloads.
+  DestinationSandbox destination_sandbox = 3;
+  // mappings represents a mapping from a port on the workload to a set of
+  // destinations.
+  repeated WorkloadPortMapping mappings = 4;
 }
 
-// A BaselineWorkload identifies a given baseline workload.
-// In the context of a WorkloadRoutesRequest, all the fields
-// are optional.  In the context of a response from the server,
-// all the fields are filled in.
+// A DestinationSandbox represents a sandbox that will receive traffic intended
+// for a baseline workload in the presence of a routing key.
+message DestinationSandbox {
+  // Sandbox name
+  string name = 1;
+}
+
+// A BaselineWorkload identifies a given baseline workload. In the context of a
+// WorkloadRoutesRequest, all the fields are optional. In the context of a
+// response from the server, all the fields are filled in.
 message BaselineWorkload {
   string kind = 1;
   string namespace = 2;
   string name = 3;
 }
 
-// WorkloadPortRule provides a mapping from a port on the workload to a set of
-// destinations.  The workload port is the same as the target port of a
-// kubernetes service matching the workload.  Each destination in the response
-// corresponds to a sandbox service matching the sandboxed workload.  As 
-// a result, any of the destinations can be used.
-message WorkloadPortRule {
+// A WorkloadPortMapping provides a mapping from a port on the workload to a set
+// of destinations. Each destination in the response corresponds to a sandbox
+// service matching the sandboxed workload. As a result, any of the destinations
+// can be used.
+message WorkloadPortMapping {
   uint32 workload_port = 1;
   repeated Location destinations = 2;
 }
-
 
 // Location gives a TCP address as a host, port pair.
 message Location {
@@ -119,3 +84,54 @@ message Location {
   uint32 port = 2;
 }
 
+
+// GetWorkloadRoutes
+// ----------------------------------------------------------------------------
+
+// WorkloadRoutesRequest is a request for a set of WorkloadRoutes, which give
+// information about how to route requests when they are intercepted at a given
+// workload. Each field is optional and constrains the the set of WorkloadRoutes
+// returned accordingly.
+//
+message WorkloadRoutesRequest {
+  // baseline_workload specifies the kind, namespace, and name of the baseline
+  // workload to which requests are directed. Each field is optional.
+  BaselineWorkload baseline_workload = 1;
+
+  // routing_key specifies the routing key associated with the request.
+  string routing_key = 2;
+
+  // destination_sandbox specifies the sandbox associated with the destination
+  // sandboxed workloads.
+  DestinationSandbox destination_sandbox = 3;
+}
+
+// a GetWorkloadRoutesResponse gives the set of WorkloadRoutes which match a
+// given WorkloadRoutesRequest.
+message GetWorkloadRoutesResponse {
+  repeated WorkloadRoute routes = 1;
+}
+
+
+// WatchWorkloadRoutes
+// ----------------------------------------------------------------------------
+
+enum WatchOp {
+  ADD = 0;
+  REMOVE = 1;
+  REPLACE = 2;
+  // In any WatchWorkloadRoutes rpc call, the returned stream will send at most
+  // 1 SYNCED WatchOp, indicating the client has all the information about
+  // Sandboxes and RouteGroups available in the cluster. Prior to sending a
+  // SYNCED WatchOp, all WatchOps are ADDs.
+  SYNCED = 3;
+}
+
+// WorkloadRouteOp describes a diff operation against a set of workload routes:
+// adding, removing, and replacing WorkloadRoutes are possible. Additionally,
+// there is a SYNCED operation to indicate when the client has received all
+// relevant WorkloadRoutes.
+message WorkloadRouteOp {
+  WatchOp op = 1;
+  WorkloadRoute route = 2;
+}

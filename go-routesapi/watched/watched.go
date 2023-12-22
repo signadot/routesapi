@@ -8,35 +8,34 @@ import (
 	"github.com/signadot/routesapi/go-routesapi/internal/indices"
 	"github.com/signadot/routesapi/go-routesapi/internal/queue"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/protobuf/proto"
 )
 
 // Watched provides an interface
 type Watched interface {
+	// Get returns a [routesapi.WorkloadRoute] which indicates where to direct
+	// requests originally destined to baseline workload baseline with routing
+	// key rk.  Get returns nil, if no such rule exists.
+	Get(baseline *routesapi.BaselineWorkload, rk string) *routesapi.WorkloadRoute
 
-	// Get returns a [routesapi.WorkloadRule] which indicates where to direct
-	// requests originally destined to baseline workload baseline with
-	// routing key rk.  Get returns nil, if no such rule exists.
-	Get(baseline *routesapi.BaselineWorkload, rk string) *routesapi.WorkloadRule
-
-	// RoutesTo indicates whether or not a request originally destined
-	// to baseline workload with routing key rk should be delivered to the
-	// corresponding sandboxed workload associated with sbID.
-	RoutesTo(baseline *routesapi.BaselineWorkload, rk, sbID string) bool
+	// RoutesTo indicates whether or not a request originally destined to
+	// baseline workload with routing key rk should be delivered to the
+	// corresponding sandboxed workload associated with a sandbox name (sbName).
+	RoutesTo(baseline *routesapi.BaselineWorkload, rk, sbName string) bool
 }
 
 type watched struct {
 	sync.RWMutex
 	synced chan struct{}
-	D      map[key]*routesapi.WorkloadRule
+	D      map[key]*routesapi.WorkloadRoute
 	I      indices.Index[key]
 }
 
-// NewWatched creates a Watched.  The set of the workload rules
-// returned from the returned Watched corresponds to those
-// specified in q.
+// NewWatched creates a Watched.  The set of the workload rules returned from
+// the returned Watched corresponds to those specified in q.
 func NewWatched(ctx context.Context, cfg *Config, q *routesapi.WorkloadRoutesRequest) (Watched, error) {
-	conn, err := grpc.Dial(cfg.Addr, grpc.WithInsecure())
+	conn, err := grpc.Dial(cfg.Addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
 		return nil, err
 	}
@@ -49,7 +48,7 @@ func NewWatched(ctx context.Context, cfg *Config, q *routesapi.WorkloadRoutesReq
 		watchOpts:    nil,
 		watchArg:     tmpIn,
 		watched:      newWatched(),
-		pending:      queue.New[*routesapi.WorkloadRuleOp](0),
+		pending:      queue.New[*routesapi.WorkloadRouteOp](0),
 	}
 	go func() {
 		for {
@@ -73,12 +72,12 @@ func NewWatched(ctx context.Context, cfg *Config, q *routesapi.WorkloadRoutesReq
 func newWatched() *watched {
 	return &watched{
 		synced: make(chan struct{}),
-		D:      make(map[key]*routesapi.WorkloadRule),
+		D:      make(map[key]*routesapi.WorkloadRoute),
 		I:      make(indices.Index[key]),
 	}
 }
 
-func (w *watched) Get(baseline *routesapi.BaselineWorkload, rk string) *routesapi.WorkloadRule {
+func (w *watched) Get(baseline *routesapi.BaselineWorkload, rk string) *routesapi.WorkloadRoute {
 	key := newKey(rk, baseline)
 	<-w.synced
 	w.RLock()
@@ -86,35 +85,35 @@ func (w *watched) Get(baseline *routesapi.BaselineWorkload, rk string) *routesap
 	return w.D[*key]
 }
 
-func (w *watched) RoutesTo(b *routesapi.BaselineWorkload, rk, sbID string) bool {
+func (w *watched) RoutesTo(b *routesapi.BaselineWorkload, rk, sbName string) bool {
 	key := newKey(rk, b)
 	<-w.synced
 	w.RLock()
 	defer w.RUnlock()
-	return w.I.Get(sbID)[*key]
+	return w.I.Get(sbName)[*key]
 }
 
-func (w *watched) set(rr *routesapi.WorkloadRule) {
+func (w *watched) set(rr *routesapi.WorkloadRoute) {
 	k, v := kv(rr)
 	w.Lock()
 	defer w.Unlock()
 	w.D[*k] = v
-	w.I.Add(rr.SandboxedWorkload.SandboxID, *k)
+	w.I.Add(rr.DestinationSandbox.Name, *k)
 }
 
-func kv(rr *routesapi.WorkloadRule) (*key, *routesapi.WorkloadRule) {
-	key := newKey(rr.RoutingKey, rr.SandboxedWorkload.Baseline)
+func kv(rr *routesapi.WorkloadRoute) (*key, *routesapi.WorkloadRoute) {
+	key := newKey(rr.RoutingKey, rr.Baseline)
 	// deep copy the rule
-	resRule := proto.Clone(rr).(*routesapi.WorkloadRule)
+	resRule := proto.Clone(rr).(*routesapi.WorkloadRoute)
 	return key, resRule
 }
 
-func (w *watched) remove(rr *routesapi.WorkloadRule) {
-	key := newKey(rr.RoutingKey, rr.SandboxedWorkload.Baseline)
+func (w *watched) remove(rr *routesapi.WorkloadRoute) {
+	key := newKey(rr.RoutingKey, rr.Baseline)
 	w.Lock()
 	defer w.Unlock()
 	delete(w.D, *key)
-	w.I.Remove(rr.SandboxedWorkload.SandboxID, *key)
+	w.I.Remove(rr.DestinationSandbox.Name, *key)
 }
 
 func (w *watched) sync() {
@@ -125,12 +124,12 @@ func (w *watched) sync() {
 	}
 }
 
-func (w *watched) handleOp(op *routesapi.WorkloadRuleOp) {
+func (w *watched) handleOp(op *routesapi.WorkloadRouteOp) {
 	switch op.Op {
 	case routesapi.WatchOp_ADD, routesapi.WatchOp_REPLACE:
-		w.set(op.Rule)
+		w.set(op.Route)
 	case routesapi.WatchOp_REMOVE:
-		w.remove(op.Rule)
+		w.remove(op.Route)
 	case routesapi.WatchOp_SYNCED:
 		w.sync()
 	}
