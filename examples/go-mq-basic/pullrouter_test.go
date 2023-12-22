@@ -7,8 +7,6 @@ import (
 	"time"
 
 	"log/slog"
-
-	"github.com/signadot/routesapi/go-routesapi"
 )
 
 func TestPullMQRouter(t *testing.T) {
@@ -16,24 +14,39 @@ func TestPullMQRouter(t *testing.T) {
 		t.Skip()
 		return
 	}
-	cfg := &Config{
-		RouteServerAddr: os.Getenv("TEST_ROUTE_SERVER_ADDR"),
-		PullInterval:    10 * time.Second,
-		Log: slog.New(slog.NewTextHandler(os.Stdout,
-			&slog.HandlerOptions{
-				Level: slog.LevelDebug,
-			})),
+
+	routeServerAddr := os.Getenv("TEST_ROUTE_SERVER_ADDR")
+	if routeServerAddr == "" {
+		// use default location
+		routeServerAddr = "routeserver.signadot.svc:7778"
 	}
-	ctx := context.Background()
+
+	cfg := &Config{
+		Log: slog.New(
+			slog.NewTextHandler(os.Stdout,
+				&slog.HandlerOptions{
+					Level: slog.LevelDebug,
+				}),
+		),
+		RouteServerAddr: routeServerAddr,
+		PullInterval:    10 * time.Second,
+		Baseline: &BaselineWorkload{
+			Kind:      "Deployment",
+			Namespace: "hotrod",
+			Name:      "route",
+		},
+	}
 
 	sandboxName := os.Getenv("SIGNADOT_SANDBOX_NAME")
-	baseline := &routesapi.BaselineWorkload{
-		Kind:      "Deployment",
-		Namespace: "hotrod",
-		Name:      "route",
+	if sandboxName != "" {
+		// we are running within a sandbox, set the sandbox reference
+		cfg.Sandbox = &Sandbox{
+			Name: sandboxName,
+		}
 	}
 
-	mq, err := NewPullMQRouter(ctx, cfg, baseline, sandboxName)
+	ctx := context.Background()
+	mq, err := NewPullMQRouter(ctx, cfg)
 	if err != nil {
 		t.Error(err)
 		return

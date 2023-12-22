@@ -5,8 +5,6 @@ import (
 	"log/slog"
 	"os"
 	"testing"
-
-	"github.com/signadot/routesapi/go-routesapi"
 )
 
 func TestWatchMQRouter(t *testing.T) {
@@ -14,23 +12,38 @@ func TestWatchMQRouter(t *testing.T) {
 		t.Skip()
 		return
 	}
-	cfg := &Config{
-		RouteServerAddr: os.Getenv("TEST_ROUTE_SERVER_ADDR"),
-		Log: slog.New(slog.NewTextHandler(os.Stdout,
-			&slog.HandlerOptions{
-				Level: slog.LevelDebug,
-			})),
+
+	routeServerAddr := os.Getenv("TEST_ROUTE_SERVER_ADDR")
+	if routeServerAddr == "" {
+		// use default location
+		routeServerAddr = "routeserver.signadot.svc:7777"
 	}
-	ctx := context.Background()
+
+	cfg := &Config{
+		Log: slog.New(
+			slog.NewTextHandler(os.Stdout,
+				&slog.HandlerOptions{
+					Level: slog.LevelDebug,
+				}),
+		),
+		RouteServerAddr: routeServerAddr,
+		Baseline: &BaselineWorkload{
+			Kind:      "Deployment",
+			Namespace: "hotrod",
+			Name:      "route",
+		},
+	}
 
 	sandboxName := os.Getenv("SIGNADOT_SANDBOX_NAME")
-	baseline := &routesapi.BaselineWorkload{
-		Kind:      "Deployment",
-		Namespace: "hotrod",
-		Name:      "route",
+	if sandboxName != "" {
+		// we are running within a sandbox, set the sandbox reference
+		cfg.Sandbox = &Sandbox{
+			Name: sandboxName,
+		}
 	}
 
-	mq, err := NewWatchMQRouter(ctx, cfg, baseline, sandboxName)
+	ctx := context.Background()
+	mq, err := NewWatchMQRouter(ctx, cfg)
 	if err != nil {
 		t.Error(err)
 		return

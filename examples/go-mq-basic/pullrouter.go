@@ -2,47 +2,35 @@ package mqbasicrouter
 
 import (
 	"context"
-	"log/slog"
+	"encoding/json"
+	"fmt"
+	"net/http"
 	"sync"
 	"time"
 
-	"github.com/signadot/routesapi/go-routesapi"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
+	"github.com/golang-collections/collections/set"
+	"github.com/signadot/routesapi/go-routesapi/models"
 )
-
-// Config provides the information to create a MQRouter
-type Config struct {
-	RouteServerAddr string // address of the routeserver
-	PullInterval    time.Duration
-	Log             *slog.Logger
-}
 
 type pullMQRouter struct {
 	*Config
-	sandboxName string
-	baseline    *routesapi.BaselineWorkload
-	grpcClient  routesapi.RoutesClient
-	init        chan struct{}
-	mu          sync.RWMutex
-	routingMap  map[string]string // this is a map from routing key to sandbox name
+	routeServerURL string
+	init           chan struct{}
+	mu             sync.RWMutex
+	routingKeys    *set.Set
 }
 
-func NewPullMQRouter(ctx context.Context, cfg *Config, b *routesapi.BaselineWorkload, sbName string) (*pullMQRouter, error) {
-	// connect the route server
-	conn, err := grpc.Dial(cfg.RouteServerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+func NewPullMQRouter(ctx context.Context, cfg *Config) (*pullMQRouter, error) {
+	// get the routesapi URL
+	routeServerURL, err := cfg.getRouteServerURL()
 	if err != nil {
 		return nil, err
 	}
-	// create a route api client
-	grpcClient := routesapi.NewRoutesClient(conn)
 	// create an mq router
 	mq := &pullMQRouter{
-		Config:      cfg,
-		sandboxName: sbName,
-		baseline:    b,
-		grpcClient:  grpcClient,
-		init:        make(chan struct{}),
+		Config:         cfg,
+		routeServerURL: routeServerURL,
+		init:           make(chan struct{}),
 	}
 	// run the mq router
 	go mq.run(ctx)
@@ -64,26 +52,25 @@ func (mq *pullMQRouter) run(ctx context.Context) {
 }
 
 func (mq *pullMQRouter) reload(ctx context.Context) {
-	mq.Log.Debug("reloading routes", "baseline", mq.baseline)
+	mq.Log.Debug("reloading routes", "baseline", *mq.Baseline)
+
 	// load routes from route server
-	resp, err := mq.grpcClient.GetWorkloadRoutes(ctx, &routesapi.WorkloadRoutesRequest{
-		BaselineWorkload: mq.baseline,
-	})
+	resp, err := mq.getRoutes()
 	if err != nil {
 		mq.Log.Error("couldn't get workload routes", "error", err)
 		return
 	}
 
-	// recompute the routing map
-	routingMap := make(map[string]string, len(resp.Routes))
+	// collect received routing keys
+	rkSet := set.New()
 	for _, route := range resp.Routes {
-		routingMap[route.RoutingKey] = route.DestinationSandbox.Name
+		rkSet.Insert(route.RoutingKey)
 	}
-	mq.Log.Debug("new routing map", "routingMap", routingMap)
+	mq.Log.Debug("routing keys received", "routingKeys", set2String(rkSet))
 
-	// update the routing map
+	// update received routing keys
 	mq.mu.Lock()
-	mq.routingMap = routingMap
+	mq.routingKeys = rkSet
 	mq.mu.Unlock()
 
 	// declare ourselves as initialized
@@ -92,7 +79,25 @@ func (mq *pullMQRouter) reload(ctx context.Context) {
 	default:
 		close(mq.init)
 	}
+}
 
+func (mq *pullMQRouter) getRoutes() (*models.WorkloadRoutesResponse, error) {
+	mq.Log.Debug("sending request to routeserver", "url", mq.routeServerURL)
+
+	// send request to route server
+	resp, err := http.Get(mq.routeServerURL)
+	if err != nil {
+		return nil, err
+	}
+	defer resp.Body.Close()
+
+	// parse response
+	routesResp := &models.WorkloadRoutesResponse{}
+	err = json.NewDecoder(resp.Body).Decode(routesResp)
+	if err != nil {
+		return nil, err
+	}
+	return routesResp, nil
 }
 
 func (mq *pullMQRouter) ShouldProcess(ctx context.Context, routingKey string) bool {
@@ -107,13 +112,23 @@ func (mq *pullMQRouter) ShouldProcess(ctx context.Context, routingKey string) bo
 	mq.mu.RLock()
 	defer mq.mu.RUnlock()
 
-	// there are 2 possible cases here:
-	//
-	// 1. we are a baseline workload (mq.sandboxName == ""), in which case we will
-	// only process the message if there is no sandboxed workload for the given
-	// routing key (in other words: mq.routingMap[routingKey] == "")
-	//
-	// 2. we are a sandboxed workload, in which case we will only process the
-	// message if the routing key points to our sandbox name
-	return mq.routingMap[routingKey] == mq.sandboxName
+	if mq.isSandboxedWorkload() {
+		// we are a sandboxed workload, only accept the received routing keys
+		return mq.routingKeys.Has(routingKey)
+	}
+	// we are a baseline workload, ignore received routing keys (they belong
+	// to sandboxed workloads)
+	return !mq.routingKeys.Has(routingKey)
+}
+
+func set2String(s *set.Set) string {
+	values := ""
+	s.Do(func(val any) {
+		if values == "" {
+			values = fmt.Sprintf("%v", val)
+		} else {
+			values += fmt.Sprintf(", %v", val)
+		}
+	})
+	return fmt.Sprintf("[%s]", values)
 }
