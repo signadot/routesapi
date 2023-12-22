@@ -5,8 +5,6 @@ import (
 	"log/slog"
 	"os"
 	"testing"
-
-	"github.com/signadot/routesapi/go-routesapi"
 )
 
 func TestWatchMQRouter(t *testing.T) {
@@ -29,15 +27,22 @@ func TestWatchMQRouter(t *testing.T) {
 				}),
 		),
 		RouteServerAddr: routeServerAddr,
-		Baseline: &routesapi.BaselineWorkload{
+		Baseline: &BaselineWorkload{
 			Kind:      "Deployment",
 			Namespace: "hotrod",
 			Name:      "route",
 		},
-		SandboxName: os.Getenv("SIGNADOT_SANDBOX_NAME"),
 	}
-	ctx := context.Background()
 
+	sandboxName := os.Getenv("SIGNADOT_SANDBOX_NAME")
+	if sandboxName != "" {
+		// we are running within a sandbox, set the sandbox reference
+		cfg.Sandbox = &Sandbox{
+			Name: sandboxName,
+		}
+	}
+
+	ctx := context.Background()
 	mq, err := NewWatchMQRouter(ctx, cfg)
 	if err != nil {
 		t.Error(err)

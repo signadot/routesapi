@@ -3,6 +3,7 @@ package mqbasicrouter
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"sync"
 	"time"
@@ -20,10 +21,15 @@ type pullMQRouter struct {
 }
 
 func NewPullMQRouter(ctx context.Context, cfg *Config) (*pullMQRouter, error) {
+	// get the routesapi URL
+	routeServerURL, err := cfg.getRouteServerURL()
+	if err != nil {
+		return nil, err
+	}
 	// create an mq router
 	mq := &pullMQRouter{
 		Config:         cfg,
-		routeServerURL: cfg.getRouteServerURL(),
+		routeServerURL: routeServerURL,
 		init:           make(chan struct{}),
 	}
 	// run the mq router
@@ -46,7 +52,7 @@ func (mq *pullMQRouter) run(ctx context.Context) {
 }
 
 func (mq *pullMQRouter) reload(ctx context.Context) {
-	mq.Log.Debug("reloading routes", "baseline", mq.Baseline)
+	mq.Log.Debug("reloading routes", "baseline", *mq.Baseline)
 
 	// load routes from route server
 	resp, err := mq.getRoutes()
@@ -57,12 +63,10 @@ func (mq *pullMQRouter) reload(ctx context.Context) {
 
 	// collect received routing keys
 	rkSet := set.New()
-	rkList := make([]string, 0, len(resp.Routes))
 	for _, route := range resp.Routes {
 		rkSet.Insert(route.RoutingKey)
-		rkList = append(rkList, route.RoutingKey)
 	}
-	mq.Log.Debug("routing keys received", "routingKeys", rkList)
+	mq.Log.Debug("routing keys received", "routingKeys", set2String(rkSet))
 
 	// update received routing keys
 	mq.mu.Lock()
@@ -108,11 +112,23 @@ func (mq *pullMQRouter) ShouldProcess(ctx context.Context, routingKey string) bo
 	mq.mu.RLock()
 	defer mq.mu.RUnlock()
 
-	if mq.SandboxName == "" {
-		// we are a baseline workload, ignore received routing keys (they belong
-		// to sandboxed workloads)
-		return !mq.routingKeys.Has(routingKey)
+	if mq.isSandboxedWorkload() {
+		// we are a sandboxed workload, only accept the received routing keys
+		return mq.routingKeys.Has(routingKey)
 	}
-	// we are a sandboxed workload, only accept the received routing keys
-	return mq.routingKeys.Has(routingKey)
+	// we are a baseline workload, ignore received routing keys (they belong
+	// to sandboxed workloads)
+	return !mq.routingKeys.Has(routingKey)
+}
+
+func set2String(s *set.Set) string {
+	values := ""
+	s.Do(func(val any) {
+		if values == "" {
+			values = fmt.Sprintf("%v", val)
+		} else {
+			values += fmt.Sprintf(", %v", val)
+		}
+	})
+	return fmt.Sprintf("[%s]", values)
 }

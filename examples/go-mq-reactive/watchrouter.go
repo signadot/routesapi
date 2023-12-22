@@ -2,7 +2,7 @@ package mqreactiverouter
 
 import (
 	"context"
-	"log/slog"
+	"fmt"
 	"sync"
 	"time"
 
@@ -14,14 +14,6 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-// Config provides the information to create a MQRouter
-type Config struct {
-	Log             *slog.Logger
-	RouteServerAddr string // address of the routeserver
-	Baseline        *routesapi.BaselineWorkload
-	SandboxName     string
-}
-
 type watchMQRouter struct {
 	*Config
 	grpcClient  routesapi.RoutesClient
@@ -32,6 +24,10 @@ type watchMQRouter struct {
 }
 
 func NewWatchMQRouter(ctx context.Context, cfg *Config) (*watchMQRouter, error) {
+	// make sure we have a baseline
+	if cfg.Baseline == nil {
+		return nil, fmt.Errorf("empty baseline")
+	}
 	// connect the route server
 	conn, err := grpc.Dial(cfg.RouteServerAddr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -55,12 +51,22 @@ func NewWatchMQRouter(ctx context.Context, cfg *Config) (*watchMQRouter, error) 
 func (mq *watchMQRouter) run(ctx context.Context) {
 	// watch loop
 	for {
-		watchClient, err := mq.grpcClient.WatchWorkloadRoutes(ctx, &routesapi.WorkloadRoutesRequest{
-			BaselineWorkload: mq.Baseline,
-			DestinationSandbox: &routesapi.DestinationSandbox{
-				Name: mq.SandboxName, // if SandboxName is empty it will return all sandboxes
+		// create the gRPC request
+		req := &routesapi.WorkloadRoutesRequest{
+			BaselineWorkload: &routesapi.BaselineWorkload{
+				Kind:      mq.Baseline.Kind,
+				Namespace: mq.Baseline.Namespace,
+				Name:      mq.Baseline.Name,
 			},
-		})
+		}
+		if mq.isSandboxedWorkload() {
+			req.DestinationSandbox = &routesapi.DestinationSandbox{
+				Name: mq.Sandbox.Name,
+			}
+		}
+
+		// start watching the stream
+		watchClient, err := mq.grpcClient.WatchWorkloadRoutes(ctx, req)
 		if err != nil {
 			// don't retry if the context has been cancelled
 			select {
@@ -135,7 +141,7 @@ func (mq *watchMQRouter) processStartingOp(op *routesapi.WorkloadRouteOp) {
 		mq.mu.Lock()
 		mq.routingKeys = mq.startingSet
 		mq.mu.Unlock()
-		mq.Log.Debug("initial routing keys", "routingKeys", mq.routingKeys)
+		mq.Log.Debug("initial routing keys", "routingKeys", set2String(mq.routingKeys))
 
 		// move out of starting state
 		mq.startingSet = nil
@@ -166,7 +172,7 @@ func (mq *watchMQRouter) processDeltaOp(op *routesapi.WorkloadRouteOp) {
 		mq.Log.Error("received unexpected watch op while receiving deltas", "op", op.Op.String())
 		return
 	}
-	mq.Log.Debug("new routing keys", "routingKeys", mq.routingKeys)
+	mq.Log.Debug("new routing keys", "routingKeys", set2String(mq.routingKeys))
 }
 
 func (mq *watchMQRouter) ShouldProcess(ctx context.Context, routingKey string) bool {
@@ -181,11 +187,23 @@ func (mq *watchMQRouter) ShouldProcess(ctx context.Context, routingKey string) b
 	mq.mu.RLock()
 	defer mq.mu.RUnlock()
 
-	if mq.SandboxName == "" {
-		// we are a baseline workload, ignore received routing keys (they belong
-		// to sandboxed workloads)
-		return !mq.routingKeys.Has(routingKey)
+	if mq.isSandboxedWorkload() {
+		// we are a sandboxed workload, only accept the received routing keys
+		return mq.routingKeys.Has(routingKey)
 	}
-	// we are a sandboxed workload, only accept the received routing keys
-	return mq.routingKeys.Has(routingKey)
+	// we are a baseline workload, ignore received routing keys (they belong
+	// to sandboxed workloads)
+	return !mq.routingKeys.Has(routingKey)
+}
+
+func set2String(s *set.Set) string {
+	values := ""
+	s.Do(func(val any) {
+		if values == "" {
+			values = fmt.Sprintf("%v", val)
+		} else {
+			values += fmt.Sprintf(", %v", val)
+		}
+	})
+	return fmt.Sprintf("[%s]", values)
 }

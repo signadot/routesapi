@@ -35,10 +35,17 @@ func TestPullMQRouter(t *testing.T) {
 			Namespace: "hotrod",
 			Name:      "route",
 		},
-		SandboxName: os.Getenv("SIGNADOT_SANDBOX_NAME"),
 	}
-	ctx := context.Background()
 
+	sandboxName := os.Getenv("SIGNADOT_SANDBOX_NAME")
+	if sandboxName != "" {
+		// we are running within a sandbox, set the sandbox reference
+		cfg.Sandbox = &Sandbox{
+			Name: sandboxName,
+		}
+	}
+
+	ctx := context.Background()
 	mq, err := NewPullMQRouter(ctx, cfg)
 	if err != nil {
 		t.Error(err)
