@@ -23,14 +23,14 @@ func TestWatchMQRouter(t *testing.T) {
 	}
 	ctx := context.Background()
 
-	sandboxID := os.Getenv("SIGNADOT_SANDBOX_ROUTING_KEY")
+	sandboxName := os.Getenv("SIGNADOT_SANDBOX_NAME")
 	baseline := &routesapi.BaselineWorkload{
 		Kind:      "Deployment",
 		Namespace: "hotrod",
 		Name:      "route",
 	}
 
-	mq, err := NewWatchMQRouter(ctx, cfg, baseline, sandboxID)
+	mq, err := NewWatchMQRouter(ctx, cfg, baseline, sandboxName)
 	if err != nil {
 		t.Error(err)
 		return

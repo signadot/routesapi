@@ -21,17 +21,17 @@ type Config struct {
 
 type watchMQRouter struct {
 	*Config
-	sandboxID   string
+	sandboxName string
 	baseline    *routesapi.BaselineWorkload
 	grpcClient  routesapi.RoutesClient
 	starting    bool
 	startingMap map[string]string
 	init        chan struct{}
 	mu          sync.RWMutex
-	routingMap  map[string]string // this is a map from routing key to sandbox ID
+	routingMap  map[string]string // this is a map from routing key to sandbox name
 }
 
-func NewWatchMQRouter(ctx context.Context, cfg *Config, b *routesapi.BaselineWorkload, sbID string) (*watchMQRouter, error) {
+func NewWatchMQRouter(ctx context.Context, cfg *Config, b *routesapi.BaselineWorkload, sbName string) (*watchMQRouter, error) {
 	// connect the route server
 	conn, err := grpc.Dial(cfg.RouteServerAddr, grpc.WithTransportCredentials(insecure.NewCredentials()))
 	if err != nil {
@@ -41,11 +41,11 @@ func NewWatchMQRouter(ctx context.Context, cfg *Config, b *routesapi.BaselineWor
 	grpcClient := routesapi.NewRoutesClient(conn)
 	// create an mq router
 	mq := &watchMQRouter{
-		Config:     cfg,
-		sandboxID:  sbID,
-		baseline:   b,
-		grpcClient: grpcClient,
-		init:       make(chan struct{}),
+		Config:      cfg,
+		sandboxName: sbName,
+		baseline:    b,
+		grpcClient:  grpcClient,
+		init:        make(chan struct{}),
 	}
 	// run the mq router
 	go mq.run(ctx)
@@ -121,11 +121,11 @@ func (mq *watchMQRouter) readStream(ctx context.Context,
 	}
 }
 
-func (mq *watchMQRouter) processStartingOp(op *routesapi.WorkloadRuleOp) {
+func (mq *watchMQRouter) processStartingOp(op *routesapi.WorkloadRouteOp) {
 	// no need to lock here, only one goroutine is acting on the starting fields
 	switch op.Op {
 	case routesapi.WatchOp_ADD:
-		mq.startingMap[op.Rule.RoutingKey] = op.Rule.SandboxedWorkload.SandboxID
+		mq.startingMap[op.Route.RoutingKey] = op.Route.DestinationSandbox.Name
 	case routesapi.WatchOp_SYNCED:
 		mq.Log.Debug("synced")
 
@@ -150,17 +150,17 @@ func (mq *watchMQRouter) processStartingOp(op *routesapi.WorkloadRuleOp) {
 	}
 }
 
-func (mq *watchMQRouter) processDeltaOp(op *routesapi.WorkloadRuleOp) {
+func (mq *watchMQRouter) processDeltaOp(op *routesapi.WorkloadRouteOp) {
 	mq.mu.Lock()
 	defer mq.mu.Unlock()
 
 	switch op.Op {
 	case routesapi.WatchOp_ADD:
-		mq.routingMap[op.Rule.RoutingKey] = op.Rule.SandboxedWorkload.SandboxID
+		mq.routingMap[op.Route.RoutingKey] = op.Route.DestinationSandbox.Name
 	case routesapi.WatchOp_REPLACE:
-		mq.routingMap[op.Rule.RoutingKey] = op.Rule.SandboxedWorkload.SandboxID
+		mq.routingMap[op.Route.RoutingKey] = op.Route.DestinationSandbox.Name
 	case routesapi.WatchOp_REMOVE:
-		delete(mq.routingMap, op.Rule.RoutingKey)
+		delete(mq.routingMap, op.Route.RoutingKey)
 	default:
 		mq.Log.Error("received unexpected watch op while receiving deltas", "op", op.Op.String())
 		return
@@ -182,11 +182,11 @@ func (mq *watchMQRouter) ShouldProcess(ctx context.Context, routingKey string) b
 
 	// there are 2 possible cases here:
 	//
-	// 1. we are a baseline workload (mq.sandboxID == ""), in which case we will
+	// 1. we are a baseline workload (mq.sandboxName == ""), in which case we will
 	// only process the message if there is no sandboxed workload for the given
 	// routing key (in other words: mq.routingMap[routingKey] == "")
 	//
 	// 2. we are a sandboxed workload, in which case we will only process the
 	// message if the routing key points to our sandbox ID
-	return mq.routingMap[routingKey] == mq.sandboxID
+	return mq.routingMap[routingKey] == mq.sandboxName
 }
