@@ -17,7 +17,7 @@ import (
 // checks if the WorkloadRoutesResponse type satisfies the MappedNullable interface at compile time
 var _ MappedNullable = &WorkloadRoutesResponse{}
 
-// WorkloadRoutesResponse A workloadRoutesResponse gives the set of WorkloadRoutes which match a given GetWorkloadRoutes request
+// WorkloadRoutesResponse A WorkloadRoutesResponse gives the set of WorkloadRoutes which match a given GetWorkloadRoutes request
 type WorkloadRoutesResponse struct {
 	Routes []WorkloadRoute `json:"routes,omitempty"`
 }

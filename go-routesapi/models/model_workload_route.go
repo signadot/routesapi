@@ -18,7 +18,7 @@ import (
 // checks if the WorkloadRoute type satisfies the MappedNullable interface at compile time
 var _ MappedNullable = &WorkloadRoute{}
 
-// WorkloadRoute A WorkloadRoute defines for a given baseline and a routing key, a single `destinationSandbox` and `mappings`. The mappings map each port of the baseline workload with corresponding TCP addresses belonging to the `destinationSandbox` where traffic is routed instead.
+// WorkloadRoute A WorkloadRoute defines for a given baseline and a routing key, a single `DestinationSandbox` and `mappings`. The mappings map each port of the baseline workload with corresponding TCP addresses belonging to the `DestinationSandbox` where traffic is routed instead.
 type WorkloadRoute struct {
 	// The routing key
 	RoutingKey string `json:"routingKey"`
