@@ -5,6 +5,11 @@ info:
   description: >
     The Routes API provides access to in-cluster routing 
     configuration set up by the Signadot Operator.
+  contact:
+    url: https://github.com/signadot/routesapi
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
   - url: http://routeserver.signadot.svc:7778
 paths:
