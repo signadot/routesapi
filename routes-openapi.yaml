@@ -5,6 +5,11 @@ info:
   description: >
     The Routes API provides access to in-cluster routing 
     configuration set up by the Signadot Operator.
+  contact:
+    url: https://github.com/signadot/routesapi
+  license:
+    name: Apache 2.0
+    url: https://www.apache.org/licenses/LICENSE-2.0.html
 servers:
   - url: http://routeserver.signadot.svc:7778
 paths:
@@ -65,49 +70,49 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/workloadRoutesResponse'
+                $ref: '#/components/schemas/WorkloadRoutesResponse'
 components:
   schemas:
-    workloadRoutesResponse:
+    WorkloadRoutesResponse:
       type: object
       description: |-
-        A workloadRoutesResponse gives the set of WorkloadRoutes which match a
+        A WorkloadRoutesResponse gives the set of WorkloadRoutes which match a
         given GetWorkloadRoutes request
       properties:
         routes:
           type: array
           items:
-            $ref: '#/components/schemas/workloadRoute'
+            $ref: '#/components/schemas/WorkloadRoute'
 
-    workloadRoute:
+    WorkloadRoute:
       type: object
       description: |-
         A WorkloadRoute defines for a given baseline and a routing key, a single
-        `destinationSandbox` and `mappings`. The mappings map each port of the
+        `DestinationSandbox` and `mappings`. The mappings map each port of the
         baseline workload with corresponding TCP addresses belonging to the
-        `destinationSandbox` where traffic is routed instead.
+        `DestinationSandbox` where traffic is routed instead.
       properties:
         routingKey:
           type: string
           description: The routing key
           example: 4835rlwxwbwyl
         baseline:
-          $ref: '#/components/schemas/baselineWorkload'
+          $ref: '#/components/schemas/BaselineWorkload'
           description: The corresponding baseline workload
         destinationSandbox:
-          $ref: '#/components/schemas/destinationSandbox'
+          $ref: '#/components/schemas/DestinationSandbox'
           description: The sandbox associated with the destination sandboxed workloads.
         mappings:
           description: A mapping from a port on the workload to a set of destinations.
           type: array
           items:
-            $ref: '#/components/schemas/workloadPortMapping'
+            $ref: '#/components/schemas/WorkloadPortMapping'
       required:
         - routingKey
         - baseline
         - destinationSandbox
 
-    destinationSandbox:
+    DestinationSandbox:
       type: object
       description: |-
         A DestinationSandbox represents a sandbox that will receive traffic
@@ -120,7 +125,7 @@ components:
       required:
         - name
 
-    baselineWorkload:
+    BaselineWorkload:
       type: object
       description: |-
         A BaselineWorkload identifies a given baseline workload.
@@ -142,7 +147,7 @@ components:
         - namespace
         - name
 
-    workloadPortMapping:
+    WorkloadPortMapping:
       type: object
       description: |-
         A WorkloadPortMapping provides a mapping from a port on the workload to
@@ -157,11 +162,11 @@ components:
         destinations:
           type: array
           items:
-            $ref: '#/components/schemas/location'
+            $ref: '#/components/schemas/Location'
       required:
         - workloadPort
 
-    location:
+    Location:
       type: object
       description: |-
         A TCP address as a host, port pair.
