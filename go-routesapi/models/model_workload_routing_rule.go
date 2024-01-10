@@ -1,7 +1,7 @@
 /*
 Signadot Routes API
 
-The Routes API provides access to in-cluster routing  configuration set up by the Signadot Operator. 
+The Routes API provides access to in-cluster routing configuration set up by  the Signadot Operator. 
 
 API version: 1.0.0
 */
@@ -12,14 +12,15 @@ package models
 
 import (
 	"encoding/json"
+	"bytes"
 	"fmt"
 )
 
-// checks if the WorkloadRoute type satisfies the MappedNullable interface at compile time
-var _ MappedNullable = &WorkloadRoute{}
+// checks if the WorkloadRoutingRule type satisfies the MappedNullable interface at compile time
+var _ MappedNullable = &WorkloadRoutingRule{}
 
-// WorkloadRoute A WorkloadRoute defines for a given baseline and a routing key, a single `DestinationSandbox` and `mappings`. The mappings map each port of the baseline workload with corresponding TCP addresses belonging to the `DestinationSandbox` where traffic is routed instead.
-type WorkloadRoute struct {
+// WorkloadRoutingRule A WorkloadRoutingRule defines for a given baseline and a routing key, a single `DestinationSandbox` and `mappings`. The mappings map each port of the baseline workload with corresponding TCP addresses belonging to the `DestinationSandbox` where traffic is routed instead.
+type WorkloadRoutingRule struct {
 	// The routing key
 	RoutingKey string `json:"routingKey"`
 	Baseline BaselineWorkload `json:"baseline"`
@@ -28,30 +29,30 @@ type WorkloadRoute struct {
 	Mappings []WorkloadPortMapping `json:"mappings,omitempty"`
 }
 
-type _WorkloadRoute WorkloadRoute
+type _WorkloadRoutingRule WorkloadRoutingRule
 
-// NewWorkloadRoute instantiates a new WorkloadRoute object
+// NewWorkloadRoutingRule instantiates a new WorkloadRoutingRule object
 // This constructor will assign default values to properties that have it defined,
 // and makes sure properties required by API are set, but the set of arguments
 // will change when the set of required properties is changed
-func NewWorkloadRoute(routingKey string, baseline BaselineWorkload, destinationSandbox DestinationSandbox) *WorkloadRoute {
-	this := WorkloadRoute{}
+func NewWorkloadRoutingRule(routingKey string, baseline BaselineWorkload, destinationSandbox DestinationSandbox) *WorkloadRoutingRule {
+	this := WorkloadRoutingRule{}
 	this.RoutingKey = routingKey
 	this.Baseline = baseline
 	this.DestinationSandbox = destinationSandbox
 	return &this
 }
 
-// NewWorkloadRouteWithDefaults instantiates a new WorkloadRoute object
+// NewWorkloadRoutingRuleWithDefaults instantiates a new WorkloadRoutingRule object
 // This constructor will only assign default values to properties that have it defined,
 // but it doesn't guarantee that properties required by API are set
-func NewWorkloadRouteWithDefaults() *WorkloadRoute {
-	this := WorkloadRoute{}
+func NewWorkloadRoutingRuleWithDefaults() *WorkloadRoutingRule {
+	this := WorkloadRoutingRule{}
 	return &this
 }
 
 // GetRoutingKey returns the RoutingKey field value
-func (o *WorkloadRoute) GetRoutingKey() string {
+func (o *WorkloadRoutingRule) GetRoutingKey() string {
 	if o == nil {
 		var ret string
 		return ret
@@ -62,7 +63,7 @@ func (o *WorkloadRoute) GetRoutingKey() string {
 
 // GetRoutingKeyOk returns a tuple with the RoutingKey field value
 // and a boolean to check if the value has been set.
-func (o *WorkloadRoute) GetRoutingKeyOk() (*string, bool) {
+func (o *WorkloadRoutingRule) GetRoutingKeyOk() (*string, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -70,12 +71,12 @@ func (o *WorkloadRoute) GetRoutingKeyOk() (*string, bool) {
 }
 
 // SetRoutingKey sets field value
-func (o *WorkloadRoute) SetRoutingKey(v string) {
+func (o *WorkloadRoutingRule) SetRoutingKey(v string) {
 	o.RoutingKey = v
 }
 
 // GetBaseline returns the Baseline field value
-func (o *WorkloadRoute) GetBaseline() BaselineWorkload {
+func (o *WorkloadRoutingRule) GetBaseline() BaselineWorkload {
 	if o == nil {
 		var ret BaselineWorkload
 		return ret
@@ -86,7 +87,7 @@ func (o *WorkloadRoute) GetBaseline() BaselineWorkload {
 
 // GetBaselineOk returns a tuple with the Baseline field value
 // and a boolean to check if the value has been set.
-func (o *WorkloadRoute) GetBaselineOk() (*BaselineWorkload, bool) {
+func (o *WorkloadRoutingRule) GetBaselineOk() (*BaselineWorkload, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -94,12 +95,12 @@ func (o *WorkloadRoute) GetBaselineOk() (*BaselineWorkload, bool) {
 }
 
 // SetBaseline sets field value
-func (o *WorkloadRoute) SetBaseline(v BaselineWorkload) {
+func (o *WorkloadRoutingRule) SetBaseline(v BaselineWorkload) {
 	o.Baseline = v
 }
 
 // GetDestinationSandbox returns the DestinationSandbox field value
-func (o *WorkloadRoute) GetDestinationSandbox() DestinationSandbox {
+func (o *WorkloadRoutingRule) GetDestinationSandbox() DestinationSandbox {
 	if o == nil {
 		var ret DestinationSandbox
 		return ret
@@ -110,7 +111,7 @@ func (o *WorkloadRoute) GetDestinationSandbox() DestinationSandbox {
 
 // GetDestinationSandboxOk returns a tuple with the DestinationSandbox field value
 // and a boolean to check if the value has been set.
-func (o *WorkloadRoute) GetDestinationSandboxOk() (*DestinationSandbox, bool) {
+func (o *WorkloadRoutingRule) GetDestinationSandboxOk() (*DestinationSandbox, bool) {
 	if o == nil {
 		return nil, false
 	}
@@ -118,12 +119,12 @@ func (o *WorkloadRoute) GetDestinationSandboxOk() (*DestinationSandbox, bool) {
 }
 
 // SetDestinationSandbox sets field value
-func (o *WorkloadRoute) SetDestinationSandbox(v DestinationSandbox) {
+func (o *WorkloadRoutingRule) SetDestinationSandbox(v DestinationSandbox) {
 	o.DestinationSandbox = v
 }
 
 // GetMappings returns the Mappings field value if set, zero value otherwise.
-func (o *WorkloadRoute) GetMappings() []WorkloadPortMapping {
+func (o *WorkloadRoutingRule) GetMappings() []WorkloadPortMapping {
 	if o == nil || IsNil(o.Mappings) {
 		var ret []WorkloadPortMapping
 		return ret
@@ -133,7 +134,7 @@ func (o *WorkloadRoute) GetMappings() []WorkloadPortMapping {
 
 // GetMappingsOk returns a tuple with the Mappings field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *WorkloadRoute) GetMappingsOk() ([]WorkloadPortMapping, bool) {
+func (o *WorkloadRoutingRule) GetMappingsOk() ([]WorkloadPortMapping, bool) {
 	if o == nil || IsNil(o.Mappings) {
 		return nil, false
 	}
@@ -141,7 +142,7 @@ func (o *WorkloadRoute) GetMappingsOk() ([]WorkloadPortMapping, bool) {
 }
 
 // HasMappings returns a boolean if a field has been set.
-func (o *WorkloadRoute) HasMappings() bool {
+func (o *WorkloadRoutingRule) HasMappings() bool {
 	if o != nil && !IsNil(o.Mappings) {
 		return true
 	}
@@ -150,11 +151,11 @@ func (o *WorkloadRoute) HasMappings() bool {
 }
 
 // SetMappings gets a reference to the given []WorkloadPortMapping and assigns it to the Mappings field.
-func (o *WorkloadRoute) SetMappings(v []WorkloadPortMapping) {
+func (o *WorkloadRoutingRule) SetMappings(v []WorkloadPortMapping) {
 	o.Mappings = v
 }
 
-func (o WorkloadRoute) MarshalJSON() ([]byte, error) {
+func (o WorkloadRoutingRule) MarshalJSON() ([]byte, error) {
 	toSerialize,err := o.ToMap()
 	if err != nil {
 		return []byte{}, err
@@ -162,7 +163,7 @@ func (o WorkloadRoute) MarshalJSON() ([]byte, error) {
 	return json.Marshal(toSerialize)
 }
 
-func (o WorkloadRoute) ToMap() (map[string]interface{}, error) {
+func (o WorkloadRoutingRule) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
 	toSerialize["routingKey"] = o.RoutingKey
 	toSerialize["baseline"] = o.Baseline
@@ -173,7 +174,7 @@ func (o WorkloadRoute) ToMap() (map[string]interface{}, error) {
 	return toSerialize, nil
 }
 
-func (o *WorkloadRoute) UnmarshalJSON(bytes []byte) (err error) {
+func (o *WorkloadRoutingRule) UnmarshalJSON(data []byte) (err error) {
 	// This validates that all required properties are included in the JSON object
 	// by unmarshalling the object into a generic map with string keys and checking
 	// that every required field exists as a key in the generic map.
@@ -185,7 +186,7 @@ func (o *WorkloadRoute) UnmarshalJSON(bytes []byte) (err error) {
 
 	allProperties := make(map[string]interface{})
 
-	err = json.Unmarshal(bytes, &allProperties)
+	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
 		return err;
@@ -197,51 +198,53 @@ func (o *WorkloadRoute) UnmarshalJSON(bytes []byte) (err error) {
 		}
 	}
 
-	varWorkloadRoute := _WorkloadRoute{}
+	varWorkloadRoutingRule := _WorkloadRoutingRule{}
 
-	err = json.Unmarshal(bytes, &varWorkloadRoute)
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.DisallowUnknownFields()
+	err = decoder.Decode(&varWorkloadRoutingRule)
 
 	if err != nil {
 		return err
 	}
 
-	*o = WorkloadRoute(varWorkloadRoute)
+	*o = WorkloadRoutingRule(varWorkloadRoutingRule)
 
 	return err
 }
 
-type NullableWorkloadRoute struct {
-	value *WorkloadRoute
+type NullableWorkloadRoutingRule struct {
+	value *WorkloadRoutingRule
 	isSet bool
 }
 
-func (v NullableWorkloadRoute) Get() *WorkloadRoute {
+func (v NullableWorkloadRoutingRule) Get() *WorkloadRoutingRule {
 	return v.value
 }
 
-func (v *NullableWorkloadRoute) Set(val *WorkloadRoute) {
+func (v *NullableWorkloadRoutingRule) Set(val *WorkloadRoutingRule) {
 	v.value = val
 	v.isSet = true
 }
 
-func (v NullableWorkloadRoute) IsSet() bool {
+func (v NullableWorkloadRoutingRule) IsSet() bool {
 	return v.isSet
 }
 
-func (v *NullableWorkloadRoute) Unset() {
+func (v *NullableWorkloadRoutingRule) Unset() {
 	v.value = nil
 	v.isSet = false
 }
 
-func NewNullableWorkloadRoute(val *WorkloadRoute) *NullableWorkloadRoute {
-	return &NullableWorkloadRoute{value: val, isSet: true}
+func NewNullableWorkloadRoutingRule(val *WorkloadRoutingRule) *NullableWorkloadRoutingRule {
+	return &NullableWorkloadRoutingRule{value: val, isSet: true}
 }
 
-func (v NullableWorkloadRoute) MarshalJSON() ([]byte, error) {
+func (v NullableWorkloadRoutingRule) MarshalJSON() ([]byte, error) {
 	return json.Marshal(v.value)
 }
 
-func (v *NullableWorkloadRoute) UnmarshalJSON(src []byte) error {
+func (v *NullableWorkloadRoutingRule) UnmarshalJSON(src []byte) error {
 	v.isSet = true
 	return json.Unmarshal(src, &v.value)
 }

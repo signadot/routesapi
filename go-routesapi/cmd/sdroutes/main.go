@@ -46,7 +46,7 @@ func main() {
 	}
 	log.Printf("connected to %s\n", addr)
 	routesClient := routesapi.NewRoutesClient(conn)
-	req := &routesapi.WorkloadRoutesRequest{
+	req := &routesapi.WorkloadRoutingRulesRequest{
 		BaselineWorkload: &routesapi.BaselineWorkload{
 			Namespace: namespace,
 			Name:      name,
@@ -60,7 +60,7 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	if !watch {
-		resp, err := routesClient.GetWorkloadRoutes(ctx, req)
+		resp, err := routesClient.GetWorkloadRoutingRules(ctx, req)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -68,7 +68,7 @@ func main() {
 		fmt.Println(s)
 		return
 	}
-	w, err := routesClient.WatchWorkloadRoutes(context.Background(), req)
+	w, err := routesClient.WatchWorkloadRoutingRules(context.Background(), req)
 	if err != nil {
 		log.Fatal(err)
 	}

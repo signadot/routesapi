@@ -3,8 +3,8 @@ info:
   title: Signadot Routes API
   version: 1.0.0
   description: >
-    The Routes API provides access to in-cluster routing 
-    configuration set up by the Signadot Operator.
+    The Routes API provides access to in-cluster routing configuration set up by 
+    the Signadot Operator.
   contact:
     url: https://github.com/signadot/routesapi
   license:
@@ -13,30 +13,32 @@ info:
 servers:
   - url: http://routeserver.signadot.svc:7778
 paths:
-  /api/v1/workloads/routes:
+  /api/v1/workloads/routing-rules:
     get:
       tags:
         - RoutesService
-      summary: GetWorkloadRoutes
+      summary: GetWorkloadRoutingRules
       description: |-
-        GetWorkloadRoutes returns a destinationSandbox and mappings for each
-        combination of baseline workload and routing key. Each request query
-        parameter represents a different filter on the set of routes returned.
+        GetWorkloadRoutingRules returns a set of WorkloadRoutingRules, keyed by
+        baseline workload and routing key, each of which contqains a
+        destinationSandbox and mappings for each port.  Each request query
+        parameter represents a different filter on the set of returned routing
+        rules.
         
-        In the response, for each returned `baseline` workload, the
-        `destinationSandbox` represents the override destination to which
-        traffic will be routed to instead in the presence of the routing key
+        In the response, for each returned `WorkloadRoutingRule`, the
+        `destinationSandbox` represents the override destination to which traffic
+        will be routed in the presence of the associated routing key
         (https://www.signadot.com/docs/context-propagation). Message queue
         consumers may use this field to discover if a message is intended for
         their consumption.
-
+        
         `mappings` provide the association between baseline workload ports and
         corresponding TCP addresses belonging to the `destinationSandbox`. The
         `mappings` are used by the DevMesh sidecar
         (https://www.signadot.com/docs/request-routing/devmesh) to implement
-        "Destination Routing", and may not be relevant to clients unless they
-        are implementing request routing in the application layer.
-      operationId: GetWorkloadRoutes
+        "Destination Routing", and may not be relevant to clients unless they are
+        implementing request routing in the application layer.
+      operationId: GetWorkloadRoutingRules
       parameters:
         - in: query
           name: baselineKind
@@ -70,24 +72,24 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/WorkloadRoutesResponse'
+                $ref: '#/components/schemas/WorkloadRoutingRulesResponse'
 components:
   schemas:
-    WorkloadRoutesResponse:
+    WorkloadRoutingRulesResponse:
       type: object
       description: |-
-        A WorkloadRoutesResponse gives the set of WorkloadRoutes which match a
-        given GetWorkloadRoutes request
+        A GetWorkloadRoutingRulesResponse gives the set of WorkloadRoutingRules which match a
+        given WorkloadRoutingRulesRequest.
       properties:
         routes:
           type: array
           items:
-            $ref: '#/components/schemas/WorkloadRoute'
+            $ref: '#/components/schemas/WorkloadRoutingRule'
 
-    WorkloadRoute:
+    WorkloadRoutingRule:
       type: object
       description: |-
-        A WorkloadRoute defines for a given baseline and a routing key, a single
+        A WorkloadRoutingRule defines for a given baseline and a routing key, a single
         `DestinationSandbox` and `mappings`. The mappings map each port of the
         baseline workload with corresponding TCP addresses belonging to the
         `DestinationSandbox` where traffic is routed instead.

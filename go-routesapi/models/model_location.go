@@ -1,7 +1,7 @@
 /*
 Signadot Routes API
 
-The Routes API provides access to in-cluster routing  configuration set up by the Signadot Operator. 
+The Routes API provides access to in-cluster routing configuration set up by  the Signadot Operator. 
 
 API version: 1.0.0
 */
@@ -12,6 +12,7 @@ package models
 
 import (
 	"encoding/json"
+	"bytes"
 	"fmt"
 )
 
@@ -110,7 +111,7 @@ func (o Location) ToMap() (map[string]interface{}, error) {
 	return toSerialize, nil
 }
 
-func (o *Location) UnmarshalJSON(bytes []byte) (err error) {
+func (o *Location) UnmarshalJSON(data []byte) (err error) {
 	// This validates that all required properties are included in the JSON object
 	// by unmarshalling the object into a generic map with string keys and checking
 	// that every required field exists as a key in the generic map.
@@ -121,7 +122,7 @@ func (o *Location) UnmarshalJSON(bytes []byte) (err error) {
 
 	allProperties := make(map[string]interface{})
 
-	err = json.Unmarshal(bytes, &allProperties)
+	err = json.Unmarshal(data, &allProperties)
 
 	if err != nil {
 		return err;
@@ -135,7 +136,9 @@ func (o *Location) UnmarshalJSON(bytes []byte) (err error) {
 
 	varLocation := _Location{}
 
-	err = json.Unmarshal(bytes, &varLocation)
+	decoder := json.NewDecoder(bytes.NewReader(data))
+	decoder.DisallowUnknownFields()
+	err = decoder.Decode(&varLocation)
 
 	if err != nil {
 		return err

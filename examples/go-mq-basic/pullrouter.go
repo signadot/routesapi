@@ -81,7 +81,7 @@ func (mq *pullMQRouter) reload(ctx context.Context) {
 	}
 }
 
-func (mq *pullMQRouter) getRoutes() (*models.WorkloadRoutesResponse, error) {
+func (mq *pullMQRouter) getRoutes() (*models.WorkloadRoutingRulesResponse, error) {
 	mq.Log.Debug("sending request to routeserver", "url", mq.routeServerURL)
 
 	// send request to route server
@@ -92,7 +92,7 @@ func (mq *pullMQRouter) getRoutes() (*models.WorkloadRoutesResponse, error) {
 	defer resp.Body.Close()
 
 	// parse response
-	routesResp := &models.WorkloadRoutesResponse{}
+	routesResp := &models.WorkloadRoutingRulesResponse{}
 	err = json.NewDecoder(resp.Body).Decode(routesResp)
 	if err != nil {
 		return nil, err

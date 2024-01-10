@@ -52,7 +52,7 @@ func (mq *watchMQRouter) run(ctx context.Context) {
 	// watch loop
 	for {
 		// create the gRPC request
-		req := &routesapi.WorkloadRoutesRequest{
+		req := &routesapi.WorkloadRoutingRulesRequest{
 			BaselineWorkload: &routesapi.BaselineWorkload{
 				Kind:      mq.Baseline.Kind,
 				Namespace: mq.Baseline.Namespace,
@@ -66,7 +66,7 @@ func (mq *watchMQRouter) run(ctx context.Context) {
 		}
 
 		// start watching the stream
-		watchClient, err := mq.grpcClient.WatchWorkloadRoutes(ctx, req)
+		watchClient, err := mq.grpcClient.WatchWorkloadRoutingRules(ctx, req)
 		if err != nil {
 			// don't retry if the context has been cancelled
 			select {
@@ -86,7 +86,7 @@ func (mq *watchMQRouter) run(ctx context.Context) {
 }
 
 func (mq *watchMQRouter) readStream(ctx context.Context,
-	watchClient routesapi.Routes_WatchWorkloadRoutesClient) {
+	watchClient routesapi.Routes_WatchWorkloadRoutingRulesClient) {
 	// put us in starting state
 	mq.startingSet = set.New()
 
@@ -129,7 +129,7 @@ func (mq *watchMQRouter) readStream(ctx context.Context,
 	}
 }
 
-func (mq *watchMQRouter) processStartingOp(op *routesapi.WorkloadRouteOp) {
+func (mq *watchMQRouter) processStartingOp(op *routesapi.WorkloadRoutingRuleOp) {
 	// no need to lock here, only one goroutine is acting on the starting fields
 	switch op.Op {
 	case routesapi.WatchOp_ADD:
@@ -157,7 +157,7 @@ func (mq *watchMQRouter) processStartingOp(op *routesapi.WorkloadRouteOp) {
 	}
 }
 
-func (mq *watchMQRouter) processDeltaOp(op *routesapi.WorkloadRouteOp) {
+func (mq *watchMQRouter) processDeltaOp(op *routesapi.WorkloadRoutingRuleOp) {
 	mq.mu.Lock()
 	defer mq.mu.Unlock()
 
