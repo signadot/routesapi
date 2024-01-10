@@ -19,7 +19,7 @@ var _ MappedNullable = &WorkloadRoutingRulesResponse{}
 
 // WorkloadRoutingRulesResponse A WorkloadRoutingRulesResponse gives the set of WorkloadRoutingRules which match a given WorkloadRoutingRulesRequest.
 type WorkloadRoutingRulesResponse struct {
-	RoutingRule []WorkloadRoutingRule `json:"routingRule,omitempty"`
+	RoutingRules []WorkloadRoutingRule `json:"routingRules,omitempty"`
 }
 
 // NewWorkloadRoutingRulesResponse instantiates a new WorkloadRoutingRulesResponse object
@@ -39,36 +39,36 @@ func NewWorkloadRoutingRulesResponseWithDefaults() *WorkloadRoutingRulesResponse
 	return &this
 }
 
-// GetRoutingRule returns the RoutingRule field value if set, zero value otherwise.
-func (o *WorkloadRoutingRulesResponse) GetRoutingRule() []WorkloadRoutingRule {
-	if o == nil || IsNil(o.RoutingRule) {
+// GetRoutingRules returns the RoutingRules field value if set, zero value otherwise.
+func (o *WorkloadRoutingRulesResponse) GetRoutingRules() []WorkloadRoutingRule {
+	if o == nil || IsNil(o.RoutingRules) {
 		var ret []WorkloadRoutingRule
 		return ret
 	}
-	return o.RoutingRule
+	return o.RoutingRules
 }
 
-// GetRoutingRuleOk returns a tuple with the RoutingRule field value if set, nil otherwise
+// GetRoutingRulesOk returns a tuple with the RoutingRules field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *WorkloadRoutingRulesResponse) GetRoutingRuleOk() ([]WorkloadRoutingRule, bool) {
-	if o == nil || IsNil(o.RoutingRule) {
+func (o *WorkloadRoutingRulesResponse) GetRoutingRulesOk() ([]WorkloadRoutingRule, bool) {
+	if o == nil || IsNil(o.RoutingRules) {
 		return nil, false
 	}
-	return o.RoutingRule, true
+	return o.RoutingRules, true
 }
 
-// HasRoutingRule returns a boolean if a field has been set.
-func (o *WorkloadRoutingRulesResponse) HasRoutingRule() bool {
-	if o != nil && !IsNil(o.RoutingRule) {
+// HasRoutingRules returns a boolean if a field has been set.
+func (o *WorkloadRoutingRulesResponse) HasRoutingRules() bool {
+	if o != nil && !IsNil(o.RoutingRules) {
 		return true
 	}
 
 	return false
 }
 
-// SetRoutingRule gets a reference to the given []WorkloadRoutingRule and assigns it to the RoutingRule field.
-func (o *WorkloadRoutingRulesResponse) SetRoutingRule(v []WorkloadRoutingRule) {
-	o.RoutingRule = v
+// SetRoutingRules gets a reference to the given []WorkloadRoutingRule and assigns it to the RoutingRules field.
+func (o *WorkloadRoutingRulesResponse) SetRoutingRules(v []WorkloadRoutingRule) {
+	o.RoutingRules = v
 }
 
 func (o WorkloadRoutingRulesResponse) MarshalJSON() ([]byte, error) {
@@ -81,8 +81,8 @@ func (o WorkloadRoutingRulesResponse) MarshalJSON() ([]byte, error) {
 
 func (o WorkloadRoutingRulesResponse) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	if !IsNil(o.RoutingRule) {
-		toSerialize["routingRule"] = o.RoutingRule
+	if !IsNil(o.RoutingRules) {
+		toSerialize["routingRules"] = o.RoutingRules
 	}
 	return toSerialize, nil
 }

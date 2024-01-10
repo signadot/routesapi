@@ -9,7 +9,7 @@ package routes;
 // the Signadot Operator.
 service Routes {
   // GetWorkloadRoutingRules returns a set of WorkloadRoutingRules, keyed by
-  // baseline workload and routing key, each of which contqains a
+  // baseline workload and routing key, each of which contains a
   // destinationSandbox and mappings for each port.  Each request query
   // parameter represents a different filter on the set of returned routing
   // rules.
@@ -110,7 +110,7 @@ message WorkloadRoutingRulesRequest {
 // a GetWorkloadRoutingRulesResponse gives the set of WorkloadRoutingRules which match a
 // given WorkloadRoutingRulesRequest.
 message GetWorkloadRoutingRulesResponse {
-  repeated WorkloadRoutingRule routes = 1;
+  repeated WorkloadRoutingRule routingRules = 1;
 }
 
 

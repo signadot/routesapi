@@ -19,7 +19,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type RoutesClient interface {
 	// GetWorkloadRoutingRules returns a set of WorkloadRoutingRules, keyed by
-	// baseline workload and routing key, each of which contqains a
+	// baseline workload and routing key, each of which contains a
 	// destinationSandbox and mappings for each port.  Each request query
 	// parameter represents a different filter on the set of returned routing
 	// rules.
@@ -98,7 +98,7 @@ func (x *routesWatchWorkloadRoutingRulesClient) Recv() (*WorkloadRoutingRuleOp, 
 // for forward compatibility
 type RoutesServer interface {
 	// GetWorkloadRoutingRules returns a set of WorkloadRoutingRules, keyed by
-	// baseline workload and routing key, each of which contqains a
+	// baseline workload and routing key, each of which contains a
 	// destinationSandbox and mappings for each port.  Each request query
 	// parameter represents a different filter on the set of returned routing
 	// rules.

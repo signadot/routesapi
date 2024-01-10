@@ -81,7 +81,7 @@ components:
         A WorkloadRoutingRulesResponse gives the set of WorkloadRoutingRules which match a
         given WorkloadRoutingRulesRequest.
       properties:
-        routingRule:
+        routingRules:
           type: array
           items:
             $ref: '#/components/schemas/WorkloadRoutingRule'
