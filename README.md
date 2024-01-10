@@ -25,12 +25,10 @@ This repository hosts
 - The [HTTP openapi spec](routes-openapi.yaml) and corresponding [docs](https://signadot.github.io/routesapi/http-api).
 - A [Go client](go-routesapi/README.md) with supporting libraries and a command for querying the gRPC
   and HTTP services.
-- Example applications with message queues.
+- [Example applications](examples/) with message queues.
 - Documentation
   * [Sandbox Routing](docs/sandbox-routing.md)
   * [Workload Rules](docs/workload-rules.md)
-  * [Sidecar Routing](docs/sidecar-routing.md)
-  * [Message queues](docs/message-queues.md)
 
 
 
