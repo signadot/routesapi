@@ -20,7 +20,7 @@ paths:
       summary: GetWorkloadRoutingRules
       description: |-
         GetWorkloadRoutingRules returns a set of WorkloadRoutingRules, keyed by
-        baseline workload and routing key, each of which contqains a
+        baseline workload and routing key, each of which contains a
         destinationSandbox and mappings for each port.  Each request query
         parameter represents a different filter on the set of returned routing
         rules.
@@ -78,7 +78,7 @@ components:
     WorkloadRoutingRulesResponse:
       type: object
       description: |-
-        A GetWorkloadRoutingRulesResponse gives the set of WorkloadRoutingRules which match a
+        A WorkloadRoutingRulesResponse gives the set of WorkloadRoutingRules which match a
         given WorkloadRoutingRulesRequest.
       properties:
         routingRule:

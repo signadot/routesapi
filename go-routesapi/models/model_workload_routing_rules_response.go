@@ -17,7 +17,7 @@ import (
 // checks if the WorkloadRoutingRulesResponse type satisfies the MappedNullable interface at compile time
 var _ MappedNullable = &WorkloadRoutingRulesResponse{}
 
-// WorkloadRoutingRulesResponse A GetWorkloadRoutingRulesResponse gives the set of WorkloadRoutingRules which match a given WorkloadRoutingRulesRequest.
+// WorkloadRoutingRulesResponse A WorkloadRoutingRulesResponse gives the set of WorkloadRoutingRules which match a given WorkloadRoutingRulesRequest.
 type WorkloadRoutingRulesResponse struct {
 	RoutingRule []WorkloadRoutingRule `json:"routingRule,omitempty"`
 }
