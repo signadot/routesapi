@@ -23,7 +23,7 @@ func TestWatched(t *testing.T) {
 			})),
 	}
 	ctx := context.Background()
-	w, err := NewWatched(ctx, cfg, &routesapi.WorkloadRoutesRequest{
+	w, err := NewWatched(ctx, cfg, &routesapi.WorkloadRoutingRulesRequest{
 		BaselineWorkload: &routesapi.BaselineWorkload{}})
 	if err != nil {
 		t.Error(err)

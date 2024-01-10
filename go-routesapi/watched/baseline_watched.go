@@ -9,7 +9,7 @@ import (
 
 // BaselineWatched wraps [watched.Watched] with a [routesapi.BaselineWorkload].
 type BaselineWatched interface {
-	Get(rk string) *routesapi.WorkloadRoute
+	Get(rk string) *routesapi.WorkloadRoutingRule
 	RoutesTo(rk string, sbName string) bool
 }
 
@@ -20,7 +20,7 @@ type baselineWatched struct {
 
 func NewBaselineWatched(ctx context.Context, cfg *Config, b *routesapi.BaselineWorkload) (BaselineWatched, error) {
 	bb := proto.Clone(b).(*routesapi.BaselineWorkload)
-	w, err := NewWatched(ctx, cfg, &routesapi.WorkloadRoutesRequest{
+	w, err := NewWatched(ctx, cfg, &routesapi.WorkloadRoutingRulesRequest{
 		BaselineWorkload: bb,
 	})
 	if err != nil {
@@ -32,7 +32,7 @@ func NewBaselineWatched(ctx context.Context, cfg *Config, b *routesapi.BaselineW
 	}, nil
 }
 
-func (bw *baselineWatched) Get(rk string) *routesapi.WorkloadRoute {
+func (bw *baselineWatched) Get(rk string) *routesapi.WorkloadRoutingRule {
 	return bw.watched.Get(bw.baseline, rk)
 }
 
