@@ -55,7 +55,7 @@ rules for a baseline workload from the environment:
 
 ```go
 import "github.com/signadot/routesapi/go-routesapi/watched"
-routing, err := watched.BaselineFromEnv()
+routing, err := watched.BaselineWatchedFromEnv()
 ```
 
 ## Using `routesapi` Go SDK
@@ -75,7 +75,7 @@ In a sandboxed workload:
 import "github.com/signadot/routesapi/go-routesapi/watched"
 
 func ShouldProcess(routing watched.BaselineWatched, routingKey string) bool {
-    return routing.RoutesTo(routingKey, os.Getenv("SIGNADOT_SANDBOX_ROUTING_KEY"))
+    return routing.RoutesTo(routingKey, os.Getenv("SIGNADOT_SANDBOX_NAME"))
 }
 ```
 
@@ -84,8 +84,8 @@ unconditionally.  This can be accomplished as follows:
 
 ```go
 func ShouldProcess(routing watched.BaselineWatched, routingKey string) bool {
-    if sbID := os.Getenv("SIGNADOT_SANDBOX_ROUTING_KEY"); sbID != "" {
-       return routing.RoutesTo(routingKey, sbID)
+    if sb := os.Getenv("SIGNADOT_SANDBOX_NAME"); sb != "" {
+       return routing.RoutesTo(routingKey, sb)
     }
     return routing.Get(routingKey) == nil
 }
