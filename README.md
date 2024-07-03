@@ -7,9 +7,6 @@ Sandboxes on a cluster with the Signadot Operator (>= v0.15.0) installed.
 Effective use of the Routes API requires an understanding of [Sandbox
 Routing](docs/sandbox-routing.md).
 
-NOTE: this is currently in preview mode, there is no Signadot Operator >= v0.14.2
-at the time of making this repository public.  It will be coming soon!
-
 ## Routeserver
 
 The Signadot Operator packages a routeserver deployment and service in the
