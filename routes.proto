@@ -33,6 +33,10 @@ service Routes {
   // that provides a stream of modifications to the set of WorkloadRoutingRules
   // (keyed by the pair baseline, routingKey), in near real-time.
   rpc WatchWorkloadRoutingRules(WorkloadRoutingRulesRequest) returns (stream WorkloadRoutingRuleOp) {}
+
+  // Returns a list of in-cluster services including headless addressable hosts,
+  // providing information about their IP, hostname, and exposed ports
+  rpc GetClusterServices(GetClusterServicesRequest) returns (GetClusterServicesResponse) {}
 }
 
 
@@ -86,6 +90,22 @@ message Location {
   uint32 port = 2;
 }
 
+// ClusterServicePort provides information about a service port
+message ClusterServicePort {
+  string name = 1;
+  uint32 port = 2;
+  string protocol = 3;
+  string app_protocol = 4;
+}
+
+// ClusterService provides information about a kubernetes service
+message ClusterService {
+  string service_ip = 1;
+  string hostname = 2;
+  repeated ClusterServicePort ports = 3;
+}
+
+
 
 // GetWorkloadRoutingRules
 // ----------------------------------------------------------------------------
@@ -138,4 +158,15 @@ enum WatchOp {
 message WorkloadRoutingRuleOp {
   WatchOp op = 1;
   WorkloadRoutingRule route = 2;
+}
+
+
+// GetClusterServices
+// ----------------------------------------------------------------------------
+
+message GetClusterServicesRequest {
+}
+
+message GetClusterServicesResponse {
+  repeated ClusterService services = 1;
 }
