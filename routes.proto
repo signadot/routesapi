@@ -98,11 +98,21 @@ message ClusterServicePort {
   string app_protocol = 4;
 }
 
+message SandboxedClusterService {
+  // Routing key of the sandbox who created the service
+  string sandbox_routing_key = 1;
+  // Hostname of the baseline service
+  string baseline_hostname = 2;
+}
+
 // ClusterService provides information about a kubernetes service
 message ClusterService {
   string service_ip = 1;
   string hostname = 2;
   repeated ClusterServicePort ports = 3;
+  // This information is only available for sandboxed services, being empty in
+  // any other case
+  SandboxedClusterService sandbox_info = 4;
 }
 
 
