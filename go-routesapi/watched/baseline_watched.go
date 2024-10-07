@@ -15,10 +15,16 @@ type BaselineWatched interface {
 	// the routing key rk for the associated baseline workload.
 	Get(rk string) *routesapi.WorkloadRoutingRule
 
+	// Same as Get() but with context handling
+	GetContext(ctx context.Context, rk string) (*routesapi.WorkloadRoutingRule, error)
+
 	// RoutesTo returns true if traffic destined to the associated
 	// baseline workload with routing key rk should be directed to
 	// the sandbox named sbName.
-	RoutesTo(rk string, sbName string) bool
+	RoutesTo(rk, sbName string) bool
+
+	// Same as RoutesTo() but with context handling
+	RoutesToContext(ctx context.Context, rk, sbName string) (bool, error)
 }
 
 type baselineWatched struct {
@@ -72,6 +78,14 @@ func (bw *baselineWatched) Get(rk string) *routesapi.WorkloadRoutingRule {
 	return bw.watched.Get(bw.baseline, rk)
 }
 
+func (bw *baselineWatched) GetContext(ctx context.Context, rk string) (*routesapi.WorkloadRoutingRule, error) {
+	return bw.watched.GetContext(ctx, bw.baseline, rk)
+}
+
 func (bw *baselineWatched) RoutesTo(rk string, sbName string) bool {
 	return bw.watched.RoutesTo(bw.baseline, rk, sbName)
+}
+
+func (bw *baselineWatched) RoutesToContext(ctx context.Context, rk string, sbName string) (bool, error) {
+	return bw.watched.RoutesToContext(ctx, bw.baseline, rk, sbName)
 }

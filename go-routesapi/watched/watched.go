@@ -19,10 +19,18 @@ type Watched interface {
 	// key rk.  Get returns nil, if no such rule exists.
 	Get(baseline *routesapi.BaselineWorkload, rk string) *routesapi.WorkloadRoutingRule
 
+	// Same as Get() but with context handling
+	GetContext(ctx context.Context, baseline *routesapi.BaselineWorkload,
+		rk string) (*routesapi.WorkloadRoutingRule, error)
+
 	// RoutesTo indicates whether or not a request originally destined to
 	// baseline workload with routing key rk should be delivered to the
 	// corresponding sandboxed workload associated with a sandbox name (sbName).
 	RoutesTo(baseline *routesapi.BaselineWorkload, rk, sbName string) bool
+
+	// Same as RoutesTo() but with context handling
+	RoutesToContext(ctx context.Context, baseline *routesapi.BaselineWorkload,
+		rk, sbName string) (bool, error)
 }
 
 type watched struct {
@@ -78,19 +86,39 @@ func newWatched() *watched {
 }
 
 func (w *watched) Get(baseline *routesapi.BaselineWorkload, rk string) *routesapi.WorkloadRoutingRule {
+	res, _ := w.GetContext(context.Background(), baseline, rk)
+	return res
+}
+
+func (w *watched) GetContext(ctx context.Context, baseline *routesapi.BaselineWorkload,
+	rk string) (*routesapi.WorkloadRoutingRule, error) {
+	select {
+	case <-w.synced:
+	case <-ctx.Done():
+		return nil, ctx.Err()
+	}
 	key := newKey(rk, baseline)
-	<-w.synced
 	w.RLock()
 	defer w.RUnlock()
-	return w.D[*key]
+	return w.D[*key], nil
 }
 
 func (w *watched) RoutesTo(b *routesapi.BaselineWorkload, rk, sbName string) bool {
+	res, _ := w.RoutesToContext(context.Background(), b, rk, sbName)
+	return res
+}
+
+func (w *watched) RoutesToContext(ctx context.Context, b *routesapi.BaselineWorkload,
+	rk, sbName string) (bool, error) {
+	select {
+	case <-w.synced:
+	case <-ctx.Done():
+		return false, ctx.Err()
+	}
 	key := newKey(rk, b)
-	<-w.synced
 	w.RLock()
 	defer w.RUnlock()
-	return w.I.Get(sbName)[*key]
+	return w.I.Get(sbName)[*key], nil
 }
 
 func (w *watched) set(rr *routesapi.WorkloadRoutingRule) {

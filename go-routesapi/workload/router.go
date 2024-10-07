@@ -10,6 +10,7 @@ import (
 
 type Router interface {
 	GetTarget(containerPort int32, rks ...string) string
+	GetTargetContext(ctx context.Context, containerPort int32, rks ...string) (string, error)
 }
 
 type router struct {
@@ -34,8 +35,16 @@ func NewRouter(cfg *Config) (Router, error) {
 }
 
 func (r *router) GetTarget(containerPort int32, rks ...string) string {
+	res, _ := r.GetTargetContext(context.Background(), containerPort, rks...)
+	return res
+}
+
+func (r *router) GetTargetContext(ctx context.Context, containerPort int32, rks ...string) (string, error) {
 	for _, rk := range rks {
-		rr := r.watched.Get(rk)
+		rr, err := r.watched.GetContext(ctx, rk)
+		if err != nil {
+			return "", err
+		}
 		if rr == nil {
 			continue
 		}
@@ -48,8 +57,8 @@ func (r *router) GetTarget(containerPort int32, rks ...string) string {
 				continue
 			}
 			dest := pr.Destinations[0]
-			return fmt.Sprintf("%s:%d", dest.Host, dest.Port)
+			return fmt.Sprintf("%s:%d", dest.Host, dest.Port), nil
 		}
 	}
-	return ""
+	return "", nil
 }
