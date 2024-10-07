@@ -63,8 +63,8 @@ func (mq *pullMQRouter) reload(ctx context.Context) {
 
 	// collect received routing keys
 	rkSet := set.New()
-	for _, route := range resp.Routes {
-		rkSet.Insert(route.RoutingKey)
+	for _, rule := range resp.RoutingRules {
+		rkSet.Insert(rule.RoutingKey)
 	}
 	mq.Log.Debug("routing keys received", "routingKeys", set2String(rkSet))
 
