@@ -10,7 +10,7 @@ import (
 
 type Router interface {
 	GetTarget(containerPort int32, rks ...string) string
-	GetTargetContext(ctx context.Context, containerPort int32, rks ...string) (string, error)
+	GetTargetWithContext(ctx context.Context, containerPort int32, rks ...string) (string, error)
 }
 
 type router struct {
@@ -35,13 +35,13 @@ func NewRouter(cfg *Config) (Router, error) {
 }
 
 func (r *router) GetTarget(containerPort int32, rks ...string) string {
-	res, _ := r.GetTargetContext(context.Background(), containerPort, rks...)
+	res, _ := r.GetTargetWithContext(context.Background(), containerPort, rks...)
 	return res
 }
 
-func (r *router) GetTargetContext(ctx context.Context, containerPort int32, rks ...string) (string, error) {
+func (r *router) GetTargetWithContext(ctx context.Context, containerPort int32, rks ...string) (string, error) {
 	for _, rk := range rks {
-		rr, err := r.watched.GetContext(ctx, rk)
+		rr, err := r.watched.GetWithContext(ctx, rk)
 		if err != nil {
 			return "", err
 		}

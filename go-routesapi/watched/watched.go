@@ -20,7 +20,7 @@ type Watched interface {
 	Get(baseline *routesapi.BaselineWorkload, rk string) *routesapi.WorkloadRoutingRule
 
 	// Same as Get() but with context handling
-	GetContext(ctx context.Context, baseline *routesapi.BaselineWorkload,
+	GetWithContext(ctx context.Context, baseline *routesapi.BaselineWorkload,
 		rk string) (*routesapi.WorkloadRoutingRule, error)
 
 	// RoutesTo indicates whether or not a request originally destined to
@@ -29,7 +29,7 @@ type Watched interface {
 	RoutesTo(baseline *routesapi.BaselineWorkload, rk, sbName string) bool
 
 	// Same as RoutesTo() but with context handling
-	RoutesToContext(ctx context.Context, baseline *routesapi.BaselineWorkload,
+	RoutesToWithContext(ctx context.Context, baseline *routesapi.BaselineWorkload,
 		rk, sbName string) (bool, error)
 }
 
@@ -86,11 +86,11 @@ func newWatched() *watched {
 }
 
 func (w *watched) Get(baseline *routesapi.BaselineWorkload, rk string) *routesapi.WorkloadRoutingRule {
-	res, _ := w.GetContext(context.Background(), baseline, rk)
+	res, _ := w.GetWithContext(context.Background(), baseline, rk)
 	return res
 }
 
-func (w *watched) GetContext(ctx context.Context, baseline *routesapi.BaselineWorkload,
+func (w *watched) GetWithContext(ctx context.Context, baseline *routesapi.BaselineWorkload,
 	rk string) (*routesapi.WorkloadRoutingRule, error) {
 	select {
 	case <-w.synced:
@@ -104,11 +104,11 @@ func (w *watched) GetContext(ctx context.Context, baseline *routesapi.BaselineWo
 }
 
 func (w *watched) RoutesTo(b *routesapi.BaselineWorkload, rk, sbName string) bool {
-	res, _ := w.RoutesToContext(context.Background(), b, rk, sbName)
+	res, _ := w.RoutesToWithContext(context.Background(), b, rk, sbName)
 	return res
 }
 
-func (w *watched) RoutesToContext(ctx context.Context, b *routesapi.BaselineWorkload,
+func (w *watched) RoutesToWithContext(ctx context.Context, b *routesapi.BaselineWorkload,
 	rk, sbName string) (bool, error) {
 	select {
 	case <-w.synced:
