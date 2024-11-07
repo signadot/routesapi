@@ -3,12 +3,14 @@ package watched
 import (
 	"context"
 	"sync"
+	"time"
 
 	"github.com/signadot/routesapi/go-routesapi"
 	"github.com/signadot/routesapi/go-routesapi/internal/indices"
 	"github.com/signadot/routesapi/go-routesapi/internal/queue"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/keepalive"
 	"google.golang.org/protobuf/proto"
 )
 
@@ -43,7 +45,11 @@ type watched struct {
 // NewWatched creates a Watched.  The set of the workload rules returned from
 // the returned Watched corresponds to those specified in q.
 func NewWatched(ctx context.Context, cfg *Config, q *routesapi.WorkloadRoutingRulesRequest) (Watched, error) {
-	conn, err := grpc.Dial(cfg.Addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(cfg.Addr, grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithKeepaliveParams(keepalive.ClientParameters{
+			Time:    5 * time.Second,
+			Timeout: 15 * time.Second,
+		}))
 	if err != nil {
 		return nil, err
 	}

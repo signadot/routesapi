@@ -10,6 +10,7 @@ import (
 	"github.com/signadot/routesapi/go-routesapi"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
+	"google.golang.org/grpc/keepalive"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
@@ -40,7 +41,12 @@ func main() {
 	flag.StringVar(&sandboxName, "sandbox-name", "", "routes routing to sandbox with given name")
 	flag.BoolVar(&watch, "watch", false, "whether to watch")
 	flag.Parse()
-	conn, err := grpc.Dial(addr, grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(addr,
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithKeepaliveParams(keepalive.ClientParameters{
+			Time:    5 * time.Second,
+			Timeout: 15 * time.Second,
+		}))
 	if err != nil {
 		log.Fatal(err)
 	}
