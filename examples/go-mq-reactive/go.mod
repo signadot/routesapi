@@ -1,6 +1,7 @@
 module github.com/signadot/routesapi/examples/go-mq-reactive
 
 go 1.22
+toolchain go1.23.7
 
 replace github.com/signadot/routesapi/go-routesapi => ../../go-routesapi
 
@@ -11,10 +12,10 @@ require (
 )
 
 require (
-	github.com/golang/protobuf v1.5.3 // indirect
-	golang.org/x/net v0.17.0 // indirect
-	golang.org/x/sys v0.13.0 // indirect
-	golang.org/x/text v0.13.0 // indirect
+	github.com/golang/protobuf v1.5.4 // indirect
+	golang.org/x/net v0.36.0 // indirect
+	golang.org/x/sys v0.30.0 // indirect
+	golang.org/x/text v0.22.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20231002182017-d307bd883b97 // indirect
-	google.golang.org/protobuf v1.31.0 // indirect
+	google.golang.org/protobuf v1.34.2 // indirect
 )
