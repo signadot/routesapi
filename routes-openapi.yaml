@@ -66,6 +66,10 @@ paths:
           schema:
             type: string
           description: The sandbox associated with the destination sandboxed workloads
+        - in: query
+          name: clientSupportsVirtualWorkloads
+          schema:
+            type: bool
       responses:
         '200':
           description: ''
@@ -165,6 +169,11 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Location'
+        trafficRules:
+          type: array
+          items:
+            type: string
+
       required:
         - workloadPort
 

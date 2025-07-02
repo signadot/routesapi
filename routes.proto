@@ -82,7 +82,11 @@ message BaselineWorkload {
 message WorkloadPortMapping {
   uint32 workload_port = 1;
   repeated Location destinations = 2;
+  // names of traffic_rules to be consumed by the traffic manager
+  // existence of any traffic rule implies routing to the traffic manager
+  repeated string traffic_rules = 3;
 }
+
 
 // Location gives a TCP address as a host, port pair.
 message Location {
@@ -135,6 +139,17 @@ message WorkloadRoutingRulesRequest {
   // destination_sandbox specifies the sandbox associated with the destination
   // sandboxed workloads.
   DestinationSandbox destination_sandbox = 3;
+
+  // client_info indicates what capabilities the client has.  If absent,
+  // the minimum capabilities are assumed.
+  ClientInfo client_info = 4;
+
+}
+
+// ClientInfo indicates what capabilities the client has.  If absent,
+// the minimum capabilities are assumed.
+message ClientInfo {
+  bool supports_virtual_workloads = 1;
 }
 
 // a GetWorkloadRoutingRulesResponse gives the set of WorkloadRoutingRules which match a
