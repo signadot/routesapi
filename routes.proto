@@ -150,6 +150,7 @@ message WorkloadRoutingRulesRequest {
 // the minimum capabilities are assumed.
 message ClientInfo {
   bool supports_virtual_workloads = 1;
+  bool supports_traffic_rules = 2;
 }
 
 // a GetWorkloadRoutingRulesResponse gives the set of WorkloadRoutingRules which match a

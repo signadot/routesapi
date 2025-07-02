@@ -24,6 +24,7 @@ type WorkloadPortMapping struct {
 	// Workload port
 	WorkloadPort int32 `json:"workloadPort"`
 	Destinations []Location `json:"destinations,omitempty"`
+	TrafficRules []string `json:"trafficRules,omitempty"`
 }
 
 type _WorkloadPortMapping WorkloadPortMapping
@@ -102,6 +103,38 @@ func (o *WorkloadPortMapping) SetDestinations(v []Location) {
 	o.Destinations = v
 }
 
+// GetTrafficRules returns the TrafficRules field value if set, zero value otherwise.
+func (o *WorkloadPortMapping) GetTrafficRules() []string {
+	if o == nil || IsNil(o.TrafficRules) {
+		var ret []string
+		return ret
+	}
+	return o.TrafficRules
+}
+
+// GetTrafficRulesOk returns a tuple with the TrafficRules field value if set, nil otherwise
+// and a boolean to check if the value has been set.
+func (o *WorkloadPortMapping) GetTrafficRulesOk() ([]string, bool) {
+	if o == nil || IsNil(o.TrafficRules) {
+		return nil, false
+	}
+	return o.TrafficRules, true
+}
+
+// HasTrafficRules returns a boolean if a field has been set.
+func (o *WorkloadPortMapping) HasTrafficRules() bool {
+	if o != nil && !IsNil(o.TrafficRules) {
+		return true
+	}
+
+	return false
+}
+
+// SetTrafficRules gets a reference to the given []string and assigns it to the TrafficRules field.
+func (o *WorkloadPortMapping) SetTrafficRules(v []string) {
+	o.TrafficRules = v
+}
+
 func (o WorkloadPortMapping) MarshalJSON() ([]byte, error) {
 	toSerialize,err := o.ToMap()
 	if err != nil {
@@ -115,6 +148,9 @@ func (o WorkloadPortMapping) ToMap() (map[string]interface{}, error) {
 	toSerialize["workloadPort"] = o.WorkloadPort
 	if !IsNil(o.Destinations) {
 		toSerialize["destinations"] = o.Destinations
+	}
+	if !IsNil(o.TrafficRules) {
+		toSerialize["trafficRules"] = o.TrafficRules
 	}
 	return toSerialize, nil
 }

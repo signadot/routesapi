@@ -70,6 +70,10 @@ paths:
           name: clientSupportsVirtualWorkloads
           schema:
             type: bool
+        - in: query
+          name: clientSupportsTrafficRules
+          schema:
+            type: bool
       responses:
         '200':
           description: ''
