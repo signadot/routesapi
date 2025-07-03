@@ -67,11 +67,7 @@ paths:
             type: string
           description: The sandbox associated with the destination sandboxed workloads
         - in: query
-          name: clientSupportsVirtualWorkloads
-          schema:
-            type: bool
-        - in: query
-          name: clientSupportsTrafficRules
+          name: enableVirtualWorkloads
           schema:
             type: bool
       responses:
@@ -173,13 +169,30 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/Location'
-        trafficRules:
-          type: array
-          items:
-            type: string
+        trafficManager:
+          $ref: '#/components/schemas/TrafficManager'
+          description: |-
+            Traffic Manager based routing specification for this workload port
 
       required:
         - workloadPort
+    TrafficManager:
+      type: object
+      description: |-
+        Traffic Manager based routing specification for this workload port
+      properties:
+        nextDestinations:
+          type: array
+          items:
+            $ref: '#/components/schemas/Location'
+          description: |-
+            List of possible addresses to choose for the the `signadot-next-host` header
+        must:
+          type: bool
+          description: |-
+            Whether any traffic must be sent to the traffic manager.  If false, the determination
+            is made by the `sd-traffic` header
+        
 
     Location:
       type: object
