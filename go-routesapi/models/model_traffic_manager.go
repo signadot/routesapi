@@ -19,7 +19,9 @@ var _ MappedNullable = &TrafficManager{}
 
 // TrafficManager Traffic Manager based routing specification for this workload port
 type TrafficManager struct {
-	Next *Location `json:"next,omitempty"`
+	// List of possible addresses to choose for the the `signadot-next-host` header
+	NextDestinations []Location `json:"nextDestinations,omitempty"`
+	// Whether any traffic must be sent to the traffic manager.  If false, the determination is made by the `sd-traffic` header
 	Must *bool `json:"must,omitempty"`
 }
 
@@ -40,36 +42,36 @@ func NewTrafficManagerWithDefaults() *TrafficManager {
 	return &this
 }
 
-// GetNext returns the Next field value if set, zero value otherwise.
-func (o *TrafficManager) GetNext() Location {
-	if o == nil || IsNil(o.Next) {
-		var ret Location
+// GetNextDestinations returns the NextDestinations field value if set, zero value otherwise.
+func (o *TrafficManager) GetNextDestinations() []Location {
+	if o == nil || IsNil(o.NextDestinations) {
+		var ret []Location
 		return ret
 	}
-	return *o.Next
+	return o.NextDestinations
 }
 
-// GetNextOk returns a tuple with the Next field value if set, nil otherwise
+// GetNextDestinationsOk returns a tuple with the NextDestinations field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *TrafficManager) GetNextOk() (*Location, bool) {
-	if o == nil || IsNil(o.Next) {
+func (o *TrafficManager) GetNextDestinationsOk() ([]Location, bool) {
+	if o == nil || IsNil(o.NextDestinations) {
 		return nil, false
 	}
-	return o.Next, true
+	return o.NextDestinations, true
 }
 
-// HasNext returns a boolean if a field has been set.
-func (o *TrafficManager) HasNext() bool {
-	if o != nil && !IsNil(o.Next) {
+// HasNextDestinations returns a boolean if a field has been set.
+func (o *TrafficManager) HasNextDestinations() bool {
+	if o != nil && !IsNil(o.NextDestinations) {
 		return true
 	}
 
 	return false
 }
 
-// SetNext gets a reference to the given Location and assigns it to the Next field.
-func (o *TrafficManager) SetNext(v Location) {
-	o.Next = &v
+// SetNextDestinations gets a reference to the given []Location and assigns it to the NextDestinations field.
+func (o *TrafficManager) SetNextDestinations(v []Location) {
+	o.NextDestinations = v
 }
 
 // GetMust returns the Must field value if set, zero value otherwise.
@@ -114,8 +116,8 @@ func (o TrafficManager) MarshalJSON() ([]byte, error) {
 
 func (o TrafficManager) ToMap() (map[string]interface{}, error) {
 	toSerialize := map[string]interface{}{}
-	if !IsNil(o.Next) {
-		toSerialize["next"] = o.Next
+	if !IsNil(o.NextDestinations) {
+		toSerialize["nextDestinations"] = o.NextDestinations
 	}
 	if !IsNil(o.Must) {
 		toSerialize["must"] = o.Must

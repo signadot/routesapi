@@ -91,7 +91,7 @@ message WorkloadPortMapping {
 message TrafficManager {
   // next specifies the sd-traffic-next-host header content as a Location.
   // it is like destinations.
-  repeated Location nextDestinations = 1;
+  repeated Location next_destinations = 1;
   // must, if specified and true, indicates that any traffic goes to the TM.
   // otherwise, only traffic with sd-traffic header goes to TM.
   bool must = 2;
