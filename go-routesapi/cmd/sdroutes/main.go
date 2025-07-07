@@ -22,6 +22,7 @@ var (
 	routingKey  string
 	sandboxName string
 	watch       bool
+	noVirtual   bool
 )
 
 var (
@@ -40,6 +41,7 @@ func main() {
 	flag.StringVar(&routingKey, "routing-key", "", "routes routing key")
 	flag.StringVar(&sandboxName, "sandbox-name", "", "routes routing to sandbox with given name")
 	flag.BoolVar(&watch, "watch", false, "whether to watch")
+	flag.BoolVar(&noVirtual, "novirtual", false, "exclude virtual workloads")
 	flag.Parse()
 	conn, err := grpc.Dial(addr,
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -61,6 +63,9 @@ func main() {
 		RoutingKey: routingKey,
 		DestinationSandbox: &routesapi.DestinationSandbox{
 			Name: sandboxName,
+		},
+		ClientInfo: &routesapi.ClientInfo{
+			EnableVirtualWorkloads: !noVirtual,
 		},
 	}
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)

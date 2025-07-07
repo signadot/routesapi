@@ -82,7 +82,21 @@ message BaselineWorkload {
 message WorkloadPortMapping {
   uint32 workload_port = 1;
   repeated Location destinations = 2;
+  // TrafficManagery specification, used to specify how to interact with
+  // the TM.  If absent, no traffic goes to TM.  If present, some traffic
+  // may go to TM.
+  TrafficManager traffic_manager = 3;
 }
+
+message TrafficManager {
+  // next specifies the sd-traffic-next-host header content as a Location.
+  // it is like destinations.
+  repeated Location next_destinations = 1;
+  // all_traffic, if specified and true, indicates that any traffic goes to the TM.
+  // otherwise, only traffic with sd-traffic header goes to TM.
+  bool all_traffic = 2;
+}
+
 
 // Location gives a TCP address as a host, port pair.
 message Location {
@@ -135,6 +149,16 @@ message WorkloadRoutingRulesRequest {
   // destination_sandbox specifies the sandbox associated with the destination
   // sandboxed workloads.
   DestinationSandbox destination_sandbox = 3;
+
+  // client_info indicates what capabilities the client has.  If absent,
+  // the minimum capabilities are assumed.
+  ClientInfo client_info = 4;
+}
+
+// ClientInfo indicates what capabilities the client has.  If absent,
+// the minimum capabilities are assumed.
+message ClientInfo {
+  bool enable_virtual_workloads = 1;
 }
 
 // a GetWorkloadRoutingRulesResponse gives the set of WorkloadRoutingRules which match a
