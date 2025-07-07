@@ -187,7 +187,7 @@ components:
             $ref: '#/components/schemas/Location'
           description: |-
             List of possible addresses to choose for the the `signadot-next-host` header
-        must:
+        allTraffic:
           type: bool
           description: |-
             Whether any traffic must be sent to the traffic manager.  If false, the determination

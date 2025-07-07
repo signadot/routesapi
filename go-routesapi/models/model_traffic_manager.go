@@ -22,7 +22,7 @@ type TrafficManager struct {
 	// List of possible addresses to choose for the the `signadot-next-host` header
 	NextDestinations []Location `json:"nextDestinations,omitempty"`
 	// Whether any traffic must be sent to the traffic manager.  If false, the determination is made by the `sd-traffic` header
-	Must *bool `json:"must,omitempty"`
+	AllTraffic *bool `json:"allTraffic,omitempty"`
 }
 
 // NewTrafficManager instantiates a new TrafficManager object
@@ -74,36 +74,36 @@ func (o *TrafficManager) SetNextDestinations(v []Location) {
 	o.NextDestinations = v
 }
 
-// GetMust returns the Must field value if set, zero value otherwise.
-func (o *TrafficManager) GetMust() bool {
-	if o == nil || IsNil(o.Must) {
+// GetAllTraffic returns the AllTraffic field value if set, zero value otherwise.
+func (o *TrafficManager) GetAllTraffic() bool {
+	if o == nil || IsNil(o.AllTraffic) {
 		var ret bool
 		return ret
 	}
-	return *o.Must
+	return *o.AllTraffic
 }
 
-// GetMustOk returns a tuple with the Must field value if set, nil otherwise
+// GetAllTrafficOk returns a tuple with the AllTraffic field value if set, nil otherwise
 // and a boolean to check if the value has been set.
-func (o *TrafficManager) GetMustOk() (*bool, bool) {
-	if o == nil || IsNil(o.Must) {
+func (o *TrafficManager) GetAllTrafficOk() (*bool, bool) {
+	if o == nil || IsNil(o.AllTraffic) {
 		return nil, false
 	}
-	return o.Must, true
+	return o.AllTraffic, true
 }
 
-// HasMust returns a boolean if a field has been set.
-func (o *TrafficManager) HasMust() bool {
-	if o != nil && !IsNil(o.Must) {
+// HasAllTraffic returns a boolean if a field has been set.
+func (o *TrafficManager) HasAllTraffic() bool {
+	if o != nil && !IsNil(o.AllTraffic) {
 		return true
 	}
 
 	return false
 }
 
-// SetMust gets a reference to the given bool and assigns it to the Must field.
-func (o *TrafficManager) SetMust(v bool) {
-	o.Must = &v
+// SetAllTraffic gets a reference to the given bool and assigns it to the AllTraffic field.
+func (o *TrafficManager) SetAllTraffic(v bool) {
+	o.AllTraffic = &v
 }
 
 func (o TrafficManager) MarshalJSON() ([]byte, error) {
@@ -119,8 +119,8 @@ func (o TrafficManager) ToMap() (map[string]interface{}, error) {
 	if !IsNil(o.NextDestinations) {
 		toSerialize["nextDestinations"] = o.NextDestinations
 	}
-	if !IsNil(o.Must) {
-		toSerialize["must"] = o.Must
+	if !IsNil(o.AllTraffic) {
+		toSerialize["allTraffic"] = o.AllTraffic
 	}
 	return toSerialize, nil
 }

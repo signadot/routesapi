@@ -92,9 +92,9 @@ message TrafficManager {
   // next specifies the sd-traffic-next-host header content as a Location.
   // it is like destinations.
   repeated Location next_destinations = 1;
-  // must, if specified and true, indicates that any traffic goes to the TM.
+  // all_traffic, if specified and true, indicates that any traffic goes to the TM.
   // otherwise, only traffic with sd-traffic header goes to TM.
-  bool must = 2;
+  bool all_traffic = 2;
 }
 
 
@@ -153,7 +153,6 @@ message WorkloadRoutingRulesRequest {
   // client_info indicates what capabilities the client has.  If absent,
   // the minimum capabilities are assumed.
   ClientInfo client_info = 4;
-
 }
 
 // ClientInfo indicates what capabilities the client has.  If absent,
