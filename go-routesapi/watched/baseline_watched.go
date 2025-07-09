@@ -36,10 +36,12 @@ type baselineWatched struct {
 // ctx for the underlying grpc watch rpc, using the routeserver
 // specified in [cfg.Addr], and associated with the baseline
 // specified in b.
-func NewBaselineWatched(ctx context.Context, cfg *Config, b *routesapi.BaselineWorkload) (BaselineWatched, error) {
+func NewBaselineWatched(ctx context.Context, cfg *Config, b *routesapi.BaselineWorkload,
+	cliInfo *routesapi.ClientInfo) (BaselineWatched, error) {
 	bb := proto.Clone(b).(*routesapi.BaselineWorkload)
 	w, err := NewWatched(ctx, cfg, &routesapi.WorkloadRoutingRulesRequest{
 		BaselineWorkload: bb,
+		ClientInfo:       cliInfo,
 	})
 	if err != nil {
 		return nil, err
@@ -57,7 +59,7 @@ func NewBaselineWatched(ctx context.Context, cfg *Config, b *routesapi.BaselineW
 // is the result of calling [context.Background] and the logger
 // is the result of calling [slog.Default].  For more control,
 // please use [NewBaselineWatched] directly.
-func BaselineWatchedFromEnv() (BaselineWatched, error) {
+func BaselineWatchedFromEnv(cliInfo *routesapi.ClientInfo) (BaselineWatched, error) {
 	baseline, err := BaselineFromEnv()
 	if err != nil {
 		return nil, fmt.Errorf("could not get baseline from env: %w", err)
@@ -71,7 +73,7 @@ func BaselineWatchedFromEnv() (BaselineWatched, error) {
 		Namespace: baseline.Namespace,
 		Name:      baseline.Name,
 	}
-	return NewBaselineWatched(context.Background(), cfg, apiBaseline)
+	return NewBaselineWatched(context.Background(), cfg, apiBaseline, cliInfo)
 }
 
 func (bw *baselineWatched) Get(rk string) *routesapi.WorkloadRoutingRule {

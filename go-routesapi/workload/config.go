@@ -4,12 +4,14 @@ import (
 	"log/slog"
 	"os"
 
+	"github.com/signadot/routesapi/go-routesapi"
 	"github.com/signadot/routesapi/go-routesapi/watched"
 )
 
 type Config struct {
 	RouteServerAddr string
 	Baseline        *watched.Baseline
+	ClientInfo      *routesapi.ClientInfo
 	Log             *slog.Logger
 	levelVar        *slog.LevelVar
 }

@@ -55,7 +55,7 @@ rules for a baseline workload from the environment:
 
 ```go
 import "github.com/signadot/routesapi/go-routesapi/watched"
-routing, err := watched.BaselineWatchedFromEnv()
+routing, err := watched.BaselineWatchedFromEnv(nil)
 ```
 
 ## Using `routesapi` Go SDK

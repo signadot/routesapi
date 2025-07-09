@@ -3,7 +3,8 @@
 The Signadot DevMesh sidecar implements routing using
 the Routes API Go SDK.
 
-Istio provides a Go plugin and supports [WASM plugins](https://istio.io/latest/docs/reference/config/proxy_extensions/wasm-plugin/).
+Istio provides a Go plugin and supports [WASM
+plugins](https://istio.io/latest/docs/reference/config/proxy_extensions/wasm-plugin/).
 
 Some infrastructure teams build their own service mesh sidecars.  While capable
 service meshes exist, this option can be useful if there are legacy
@@ -66,8 +67,8 @@ retrieve any destination sandbox as follows
 routing.GetTarget(port, routingKey)
 ```
 
-This will return an empty string when the routing key does not indicate any sandboxed 
-workload.  
+This will return an empty response when the routing key does not indicate any
+sandboxed workload.  
 
 ## Considerations
 
