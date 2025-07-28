@@ -153,6 +153,17 @@ message WorkloadRoutingRulesRequest {
   // client_info indicates what capabilities the client has.  If absent,
   // the minimum capabilities are assumed.
   ClientInfo client_info = 4;
+
+  // traffic_manager_policy indicates what traffic manager policy 
+  // the client is looking for.
+  TrafficManagerPolicy traffic_manager_policy = 5;
+}
+
+// TrafficManagerPolicy indicates the policy used to determine whether
+// or not to use the traffic manager for sandbox traffic.
+enum TrafficManagerPolicy {
+  HEADER = 0;
+  ALL = 1;
 }
 
 // ClientInfo indicates what capabilities the client has.  If absent,

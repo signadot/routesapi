@@ -70,6 +70,12 @@ paths:
           name: enableVirtualWorkloads
           schema:
             type: bool
+        - in: query
+          name: trafficManagerPolicy
+          schema:
+            type: string
+            enum: [header, all]
+          description: What traffic manager policy to look for
       responses:
         '200':
           description: ''
