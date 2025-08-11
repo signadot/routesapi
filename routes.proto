@@ -82,7 +82,7 @@ message BaselineWorkload {
 message WorkloadPortMapping {
   uint32 workload_port = 1;
   repeated Location destinations = 2;
-  // TrafficManagery specification, used to specify how to interact with
+  // TrafficManager specification, used to specify how to interact with
   // the TM.  If absent, no traffic goes to TM.  If present, some traffic
   // may go to TM.
   TrafficManager traffic_manager = 3;
@@ -162,8 +162,9 @@ message WorkloadRoutingRulesRequest {
 // TrafficManagerPolicy indicates the policy used to determine whether
 // or not to use the traffic manager for sandbox traffic.
 enum TrafficManagerPolicy {
-  HEADER = 0;
-  ALL = 1;
+  UNSPECIFIED = 0;
+  HEADER = 1;
+  ALL = 2;
 }
 
 // ClientInfo indicates what capabilities the client has.  If absent,
