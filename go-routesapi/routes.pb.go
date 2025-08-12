@@ -25,9 +25,14 @@ const (
 type TrafficManagerPolicy int32
 
 const (
+	// UNSPECIFIED is the default value if not provided by the client,
+	// matching all concrete tmPolicies.
 	TrafficManagerPolicy_UNSPECIFIED TrafficManagerPolicy = 0
-	TrafficManagerPolicy_HEADER      TrafficManagerPolicy = 1
-	TrafficManagerPolicy_ALL         TrafficManagerPolicy = 2
+	// HEADER indicates the traffic manager will process traffic only
+	// if the header is provided
+	TrafficManagerPolicy_HEADER TrafficManagerPolicy = 1
+	// ALL indicates all traffic goes to the traffic manager
+	TrafficManagerPolicy_ALL TrafficManagerPolicy = 2
 )
 
 // Enum value maps for TrafficManagerPolicy.

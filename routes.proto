@@ -162,8 +162,13 @@ message WorkloadRoutingRulesRequest {
 // TrafficManagerPolicy indicates the policy used to determine whether
 // or not to use the traffic manager for sandbox traffic.
 enum TrafficManagerPolicy {
+  // UNSPECIFIED is the default value if not provided by the client,
+  // matching all concrete tmPolicies.
   UNSPECIFIED = 0;
+  // HEADER indicates the traffic manager will process traffic only
+  // if the header is provided
   HEADER = 1;
+  // ALL indicates all traffic goes to the traffic manager
   ALL = 2;
 }
 
