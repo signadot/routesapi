@@ -1,6 +1,6 @@
 module github.com/signadot/routesapi/examples/go-mq-basic
 
-go 1.22
+go 1.27.1
 
 replace github.com/signadot/routesapi/go-routesapi => ../../go-routesapi
 
