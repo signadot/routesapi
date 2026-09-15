@@ -49,12 +49,19 @@ func (w *watcher) Recv() (*routesapi.WorkloadRoutingRuleOp, error) {
 				return op, nil
 			}
 		}
-		w.retryRefetch(err)
-		err = nil
+		if ctxErr := w.watchContext.Err(); ctxErr != nil {
+			return nil, ctxErr
+		}
+		if err = w.retryRefetch(err); err != nil {
+			return nil, err
+		}
 	}
 }
 
-func (w *watcher) retryRefetch(err error) {
+// retryRefetch re-establishes the underlying watch, retrying until it
+// succeeds or the watch context is done, in which case the context error is
+// returned.
+func (w *watcher) retryRefetch(err error) error {
 	if err != nil {
 		w.Log.Error("restart because of error receiving", "error", err)
 	} else {
@@ -66,10 +73,17 @@ func (w *watcher) retryRefetch(err error) {
 	for {
 		err := w.slurp()
 		if err == nil {
-			return
+			return nil
+		}
+		if ctxErr := w.watchContext.Err(); ctxErr != nil {
+			return ctxErr
 		}
 		w.Log.Error("slurp", "error", err)
-		<-ticker.C
+		select {
+		case <-ticker.C:
+		case <-w.watchContext.Done():
+			return w.watchContext.Err()
+		}
 		ticker.Reset(luby.Next())
 	}
 }

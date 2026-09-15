@@ -43,8 +43,11 @@ func NewWatchMQRouter(ctx context.Context, cfg *Config) (*watchMQRouter, error) 
 		grpcClient: grpcClient,
 		init:       make(chan struct{}),
 	}
-	// run the mq router
-	go mq.run(ctx)
+	// run the mq router, closing the connection once it is done
+	go func() {
+		defer conn.Close()
+		mq.run(ctx)
+	}()
 	return mq, nil
 }
 

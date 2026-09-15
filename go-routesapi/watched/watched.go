@@ -2,6 +2,7 @@ package watched
 
 import (
 	"context"
+	"log/slog"
 	"sync"
 	"time"
 
@@ -44,7 +45,15 @@ type watched struct {
 
 // NewWatched creates a Watched.  The set of the workload rules returned from
 // the returned Watched corresponds to those specified in q.
+//
+// The watch runs in the background until ctx is done, at which point the
+// underlying connection is closed.  If cfg.Log is nil, [slog.Default] is used.
 func NewWatched(ctx context.Context, cfg *Config, q *routesapi.WorkloadRoutingRulesRequest) (Watched, error) {
+	if cfg.Log == nil {
+		cfgCopy := *cfg
+		cfgCopy.Log = slog.Default()
+		cfg = &cfgCopy
+	}
 	conn, err := grpc.Dial(cfg.Addr, grpc.WithTransportCredentials(insecure.NewCredentials()),
 		grpc.WithKeepaliveParams(keepalive.ClientParameters{
 			Time:    5 * time.Second,
@@ -65,18 +74,19 @@ func NewWatched(ctx context.Context, cfg *Config, q *routesapi.WorkloadRoutingRu
 		pending:      queue.New[*routesapi.WorkloadRoutingRuleOp](0),
 	}
 	go func() {
+		defer conn.Close()
 		for {
 			_, err := watcher.Recv()
-			if err != nil {
-				// TODO propagate non-restart errors if possible
-				// for now, this doesn't, it just restarts on error
-				cfg.Log.Error("error with retry watch receive", "error", err)
-			}
 			select {
 			case <-ctx.Done():
 				cfg.Log.Info("exiting watcher, context done")
 				return
 			default:
+			}
+			if err != nil {
+				// TODO propagate non-restart errors if possible
+				// for now, this doesn't, it just restarts on error
+				cfg.Log.Error("error with retry watch receive", "error", err)
 			}
 		}
 	}()
@@ -131,8 +141,12 @@ func (w *watched) set(rr *routesapi.WorkloadRoutingRule) {
 	k, v := kv(rr)
 	w.Lock()
 	defer w.Unlock()
+	// a replace may change the destination sandbox; drop the old index entry
+	if old, ok := w.D[*k]; ok {
+		w.I.Remove(old.DestinationSandbox.GetName(), *k)
+	}
 	w.D[*k] = v
-	w.I.Add(rr.DestinationSandbox.Name, *k)
+	w.I.Add(rr.DestinationSandbox.GetName(), *k)
 }
 
 func kv(rr *routesapi.WorkloadRoutingRule) (*key, *routesapi.WorkloadRoutingRule) {
@@ -146,8 +160,13 @@ func (w *watched) remove(rr *routesapi.WorkloadRoutingRule) {
 	key := newKey(rr.RoutingKey, rr.Baseline)
 	w.Lock()
 	defer w.Unlock()
+	// remove the index entry for the sandbox we recorded, which is the one
+	// actually indexed, in addition to the one named in the op.
+	if old, ok := w.D[*key]; ok {
+		w.I.Remove(old.DestinationSandbox.GetName(), *key)
+	}
 	delete(w.D, *key)
-	w.I.Remove(rr.DestinationSandbox.Name, *key)
+	w.I.Remove(rr.DestinationSandbox.GetName(), *key)
 }
 
 func (w *watched) sync() {
