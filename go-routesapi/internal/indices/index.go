@@ -32,6 +32,9 @@ func (i Index[Key]) Remove(v string, k Key) {
 		return
 	}
 	delete(dd, k)
+	if len(dd) == 0 {
+		delete(i, v)
+	}
 }
 
 // efficient intersection of a slice of sets of keys this is always called with

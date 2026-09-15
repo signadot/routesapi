@@ -60,7 +60,8 @@ func (q *Queue[T]) grow() {
 		M = 13
 	}
 	tmp := make([]T, M)
-	if q.start < q.end {
+	// start == end means empty (only possible here when len(q.D) <= 1)
+	if q.start <= q.end {
 		copy(tmp, q.D[q.start:q.end])
 		q.D = tmp
 		q.end = q.end - q.start
