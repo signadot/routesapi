@@ -1,6 +1,6 @@
 module github.com/signadot/routesapi/go-routesapi
 
-go 1.27.1
+go 1.26
 
 require (
 	google.golang.org/grpc v1.60.0
