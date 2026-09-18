@@ -1,6 +1,13 @@
 module github.com/signadot/routesapi/go-routesapi
 
-go 1.27.1
+// go-routesapi is imported by third parties, so the `go` directive below is the
+// minimum Go version every importer is forced onto. Keep it at the floor the
+// code and its dependencies actually need (currently set by golang.org/x/*),
+// not at the latest Go release. Use the `toolchain` directive to choose the Go
+// version used to develop and test this repo; importers ignore that line.
+go 1.23.0
+
+toolchain go1.27.1
 
 require (
 	google.golang.org/grpc v1.60.0
