@@ -10,6 +10,7 @@ import (
 	"github.com/signadot/routesapi/go-routesapi/internal/indices"
 	"github.com/signadot/routesapi/go-routesapi/internal/queue"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/backoff"
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/keepalive"
 	"google.golang.org/protobuf/proto"
@@ -36,6 +37,10 @@ type Watched interface {
 		rk, sbName string) (bool, error)
 }
 
+// minConnectTimeout is how long a single connection attempt to the route
+// server may take before it is abandoned and retried.
+const minConnectTimeout = 3 * time.Second
+
 type watched struct {
 	sync.RWMutex
 	synced chan struct{}
@@ -58,6 +63,16 @@ func NewWatched(ctx context.Context, cfg *Config, q *routesapi.WorkloadRoutingRu
 		grpc.WithKeepaliveParams(keepalive.ClientParameters{
 			Time:    5 * time.Second,
 			Timeout: 15 * time.Second,
+		}),
+		// Bound each connection attempt. A dial to an address that
+		// silently drops packets (a Service still routing to a pod that
+		// is gone) otherwise hangs for gRPC's default of 20s, even when
+		// the address works again a second later. The backoff stays at
+		// gRPC's default; an attempt's deadline is the larger of this
+		// and its backoff delay.
+		grpc.WithConnectParams(grpc.ConnectParams{
+			Backoff:           backoff.DefaultConfig,
+			MinConnectTimeout: minConnectTimeout,
 		}))
 	if err != nil {
 		return nil, err
